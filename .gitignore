@@ -18,6 +18,7 @@ mono_crash.*
 
 # Build results
 [Dd]ebug/
+!code_source_devoir_3/code_source_raven/raven_VS2015/VS2015/Common/Debug
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
