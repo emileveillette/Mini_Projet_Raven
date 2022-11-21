@@ -94,6 +94,7 @@ void Raven_Game::Clear()
   //clear the containers
   m_Projectiles.clear();
   m_Bots.clear();
+  m_PlayerBots.clear();
 
   m_pSelectedBot = NULL;
 
@@ -188,6 +189,7 @@ void Raven_Game::Update()
       NotifyAllBotsOfRemoval(pBot);
       delete m_Bots.back();
       m_Bots.remove(pBot);
+      m_PlayerBots.remove(pBot);
       pBot = 0;
     }
 
@@ -257,6 +259,10 @@ void Raven_Game::AddBots(unsigned int NumBotsToAdd)
     rb->GetSteering()->SeparationOn();
 
     m_Bots.push_back(rb);
+    if (m_Bots.size() % 2 != 0)
+    {
+        m_PlayerBots.push_back(rb);
+    }
 
     //register the bot with the entity manager
     EntityMgr->RegisterEntity(rb);
@@ -404,6 +410,33 @@ bool Raven_Game::LoadMap(const std::string& filename)
   return false;
 }
 
+void Raven_Game::OrderTeamToAim(Raven_Bot* pPossessedBot, Raven_Bot* pAimedBot) const
+{
+    std::list<Raven_Bot*>::const_iterator curBot = m_PlayerBots.begin();
+    for (curBot; curBot != m_PlayerBots.end(); ++curBot)
+    {
+        Dispatcher->DispatchMsg(SEND_MSG_IMMEDIATELY,
+            pPossessedBot->ID(),
+            (*curBot)->ID(),
+            Msg_OrderToAim,
+            pAimedBot);
+
+    }
+}
+
+void Raven_Game::CancelOrderTeamToAim(Raven_Bot* pPossessedBot) const
+{
+    std::list<Raven_Bot*>::const_iterator curBot = m_PlayerBots.begin();
+    for (curBot; curBot != m_PlayerBots.end(); ++curBot)
+    {
+        Dispatcher->DispatchMsg(SEND_MSG_IMMEDIATELY,
+            pPossessedBot->ID(),
+            (*curBot)->ID(),
+            Msg_ClearAimOrder,
+            NO_ADDITIONAL_INFO);
+
+    }
+}
 
 //------------------------- ExorciseAnyPossessedBot ---------------------------
 //
@@ -436,9 +469,18 @@ void Raven_Game::ClickRightMouseButton(POINTS p)
   //change selection
   if (pBot && pBot != m_pSelectedBot)
   { 
-    if (m_pSelectedBot) m_pSelectedBot->Exorcise();
-    m_pSelectedBot = pBot;
-
+    // if the q key is pressed down at the same time as clicking the
+    // team of the player is notified that they have to attack the aimed bot
+    if (IS_KEY_PRESSED('W'))
+    {
+        if (pBot) { OrderTeamToAim(m_pSelectedBot, pBot); }
+        else { CancelOrderTeamToAim(m_pSelectedBot); }
+    }
+    else
+    {
+        if (m_pSelectedBot) m_pSelectedBot->Exorcise();
+        m_pSelectedBot = pBot;
+    }
     return;
   }
 
@@ -456,7 +498,7 @@ void Raven_Game::ClickRightMouseButton(POINTS p)
   //position
   if (m_pSelectedBot->isPossessed())
   {
-    //if the shift key is pressed down at the same time as clicking then the
+    //if the q key is pressed down at the same time as clicking then the
     //movement command will be queued
     if (IS_KEY_PRESSED('Q'))
     {

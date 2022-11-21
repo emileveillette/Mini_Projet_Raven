@@ -29,6 +29,9 @@ private:
   //the current target (this will be null if there is no target assigned)
   Raven_Bot*  m_pCurrentTarget;
 
+  //the target ordered by the player.
+  Raven_Bot* m_pOrderedTarget = nullptr;
+
 
 public:
 
@@ -66,6 +69,11 @@ public:
 
   //sets the target pointer to null
   void       ClearTarget(){m_pCurrentTarget=0;}
+
+  //set the order a new ordered target
+  void		OrderTarget(Raven_Bot* pNewTarget) { m_pOrderedTarget = pNewTarget; }
+
+  void		ClearOrderedTarget() { m_pOrderedTarget = nullptr; }
 };
 
 

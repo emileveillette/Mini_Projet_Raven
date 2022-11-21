@@ -105,6 +105,9 @@ private:
   //set to true when a human player takes over control of the bot
   bool                               m_bPossessed;
 
+  //set to true when is in the team of the player.
+  bool								m_bInPlayerTeam;
+
   //a vertex buffer containing the bot's geometry
   std::vector<Vector2D>              m_vecBotVB;
   //the buffer for the transformed vertices
@@ -174,6 +177,7 @@ public:
   void          ChangeWeapon(unsigned int type);
   void          TakePossession();
   void          Exorcise();
+  void			IsFromPlayerTeam() { return m_bInPlayerTeam };
 
   //spawns the bot at the given position
   void          Spawn(Vector2D pos);

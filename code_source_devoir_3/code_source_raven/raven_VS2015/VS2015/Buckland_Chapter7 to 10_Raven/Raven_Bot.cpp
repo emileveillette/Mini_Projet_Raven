@@ -274,8 +274,20 @@ bool Raven_Bot::HandleMessage(const Telegram& msg)
 
       return true;
     }
+  case Msg_Notify
 
+  case Msg_OrderToAim:
+  {
+      Raven_Bot* pNewTarget = (Raven_Bot*)msg.ExtraInfo;
+      GetTargetSys()->OrderTarget(pNewTarget);
 
+      return true;
+  }
+
+  case Msg_ClearAimOrder:
+      GetTargetSys()->ClearOrderedTarget();
+
+      return true;
   default: return false;
   }
 }

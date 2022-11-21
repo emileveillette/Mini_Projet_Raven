@@ -20,6 +20,12 @@ void Raven_TargetingSystem::Update()
   double ClosestDistSoFar = MaxDouble;
   m_pCurrentTarget       = 0;
 
+  if (m_pOrderedTarget && m_pOrderedTarget->isAlive() && m_pOrderedTarget != m_pOwner)
+  {
+      m_pCurrentTarget = m_pOrderedTarget;
+      return;
+  }
+
   //grab a list of all the opponents the owner can sense
   std::list<Raven_Bot*> SensedBots;
   SensedBots = m_pOwner->GetSensoryMem()->GetListOfRecentlySensedOpponents();
@@ -66,5 +72,6 @@ double Raven_TargetingSystem::GetTimeTargetHasBeenVisible()const
 
 double Raven_TargetingSystem::GetTimeTargetHasBeenOutOfView()const
 {
+    this;
   return m_pOwner->GetSensoryMem()->GetTimeOpponentHasBeenOutOfView(m_pCurrentTarget);
 }
