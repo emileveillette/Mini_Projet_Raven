@@ -96,8 +96,8 @@ public:
   //loads an environment from a file
   bool LoadMap(const std::string& FileName); 
 
+  void NotifyTeam(Raven_Bot* pPossessedBot, int msg) const;
   void OrderTeamToAim(Raven_Bot* pPossessedBot, Raven_Bot* pAimedBot) const;
-  void CancelOrderTeamToAim(Raven_Bot* pPossessedBot) const;
 
   void AddBots(unsigned int NumBotsToAdd);
   void AddRocket(Raven_Bot* shooter, Vector2D target);

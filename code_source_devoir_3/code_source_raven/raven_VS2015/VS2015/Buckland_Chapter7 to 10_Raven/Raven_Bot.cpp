@@ -46,6 +46,7 @@ Raven_Bot::Raven_Bot(Raven_Game* world,Vector2D pos):
                  m_iScore(0),
                  m_Status(spawning),
                  m_bPossessed(false),
+                 m_bInPlayerTeam(false),
                  m_dFieldOfView(DegsToRads(script->GetDouble("Bot_FOV")))
            
 {
@@ -274,7 +275,15 @@ bool Raven_Bot::HandleMessage(const Telegram& msg)
 
       return true;
     }
-  case Msg_Notify
+  case Msg_NotifyTeamOfPossess:
+      m_bInPlayerTeam = true;
+
+      return true;
+  
+  case Msg_NotifyTeamOfExorcise:
+      m_bInPlayerTeam = false;
+
+      return true;
 
   case Msg_OrderToAim:
   {
@@ -364,6 +373,7 @@ void Raven_Bot::TakePossession()
   if ( !(isSpawning() || isDead()))
   {
     m_bPossessed = true;
+    m_bInPlayerTeam = true;
 
     debug_con << "Player Possesses bot " << this->ID() << "";
   }
@@ -375,6 +385,7 @@ void Raven_Bot::TakePossession()
 void Raven_Bot::Exorcise()
 {
   m_bPossessed = false;
+  m_bInPlayerTeam = false;
 
   //when the player is exorcised then the bot should resume normal service
   m_pBrain->AddGoal_Explore();
@@ -509,7 +520,10 @@ void Raven_Bot::Render()
   gdi->ClosedShape(m_vecBotVBTrans);
   
   //draw the head
-  gdi->BrownBrush();
+  if (m_bInPlayerTeam)
+    gdi->OrangeBrush();
+  else
+    gdi->BrownBrush();
   gdi->Circle(Pos(), 6.0 * Scale().x);
 
 

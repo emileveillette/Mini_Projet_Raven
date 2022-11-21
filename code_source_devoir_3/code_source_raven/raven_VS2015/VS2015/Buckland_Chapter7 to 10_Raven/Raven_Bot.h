@@ -177,7 +177,7 @@ public:
   void          ChangeWeapon(unsigned int type);
   void          TakePossession();
   void          Exorcise();
-  void			IsFromPlayerTeam() { return m_bInPlayerTeam };
+  bool			IsFromPlayerTeam() { return m_bInPlayerTeam; };
 
   //spawns the bot at the given position
   void          Spawn(Vector2D pos);

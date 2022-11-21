@@ -410,6 +410,20 @@ bool Raven_Game::LoadMap(const std::string& filename)
   return false;
 }
 
+void Raven_Game::NotifyTeam(Raven_Bot* pPossessedBot, int msg) const
+{
+    std::list<Raven_Bot*>::const_iterator curBot = m_PlayerBots.begin();
+    for (curBot; curBot != m_PlayerBots.end(); ++curBot)
+    {
+        Dispatcher->DispatchMsg(SEND_MSG_IMMEDIATELY,
+            pPossessedBot->ID(),
+            (*curBot)->ID(),
+            msg,
+            pPossessedBot);
+
+    }
+}
+
 void Raven_Game::OrderTeamToAim(Raven_Bot* pPossessedBot, Raven_Bot* pAimedBot) const
 {
     std::list<Raven_Bot*>::const_iterator curBot = m_PlayerBots.begin();
@@ -420,20 +434,6 @@ void Raven_Game::OrderTeamToAim(Raven_Bot* pPossessedBot, Raven_Bot* pAimedBot) 
             (*curBot)->ID(),
             Msg_OrderToAim,
             pAimedBot);
-
-    }
-}
-
-void Raven_Game::CancelOrderTeamToAim(Raven_Bot* pPossessedBot) const
-{
-    std::list<Raven_Bot*>::const_iterator curBot = m_PlayerBots.begin();
-    for (curBot; curBot != m_PlayerBots.end(); ++curBot)
-    {
-        Dispatcher->DispatchMsg(SEND_MSG_IMMEDIATELY,
-            pPossessedBot->ID(),
-            (*curBot)->ID(),
-            Msg_ClearAimOrder,
-            NO_ADDITIONAL_INFO);
 
     }
 }
@@ -474,11 +474,15 @@ void Raven_Game::ClickRightMouseButton(POINTS p)
     if (IS_KEY_PRESSED('W'))
     {
         if (pBot) { OrderTeamToAim(m_pSelectedBot, pBot); }
-        else { CancelOrderTeamToAim(m_pSelectedBot); }
+        else { NotifyTeam(m_pSelectedBot, Msg_ClearAimOrder); }
     }
     else
     {
-        if (m_pSelectedBot) m_pSelectedBot->Exorcise();
+        if (m_pSelectedBot)
+        {
+            m_pSelectedBot->Exorcise();
+            NotifyTeam(m_pSelectedBot, Msg_NotifyTeamOfExorcise);
+        }
         m_pSelectedBot = pBot;
     }
     return;
@@ -489,6 +493,8 @@ void Raven_Game::ClickRightMouseButton(POINTS p)
   if (pBot && pBot == m_pSelectedBot)
   {
     m_pSelectedBot->TakePossession();
+
+    NotifyTeam(m_pSelectedBot, Msg_NotifyTeamOfPossess);
 
     //clear any current goals
     m_pSelectedBot->GetBrain()->RemoveAllSubgoals();
