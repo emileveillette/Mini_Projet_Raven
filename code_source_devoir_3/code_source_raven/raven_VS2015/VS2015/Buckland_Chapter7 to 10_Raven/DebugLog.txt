@@ -73,28 +73,27 @@ Creating a shotgun
 Creating a shotgun
 Creating a rocket_launcher
 maps/Raven_DM1.map loaded okay
-Player Possesses bot 401
-Player Possesses bot 401
+Player Possesses bot 402
+Player Possesses bot 402
+BOT 402 IS STUCK!!
+BOT 402 IS STUCK!!
+Player is exorcised from bot 402
 Player is exorcised from bot 401
-Player is exorcised from bot 415
-Player Possesses bot 401
-Player Possesses bot 401
-BOT 403 IS STUCK!!
-BOT 420 IS STUCK!!
-BOT 418 IS STUCK!!
-BOT 425 IS STUCK!!
+Player Possesses bot 423
+Player Possesses bot 423
+Player is exorcised from bot 423
+Player Possesses bot 402
+Player Possesses bot 402
+Player is exorcised from bot 402
+Player Possesses bot 418
+BOT 401 IS STUCK!!
 deleting raven bot (id = 401)
 deleting raven bot (id = 402)
 deleting raven bot (id = 403)
-deleting raven bot (id = 415)
-deleting raven bot (id = 416)
-deleting raven bot (id = 417)
+deleting raven bot (id = 404)
 deleting raven bot (id = 418)
 deleting raven bot (id = 419)
 deleting raven bot (id = 420)
-deleting raven bot (id = 421)
-deleting raven bot (id = 424)
-deleting raven bot (id = 425)
+deleting raven bot (id = 423)
 deleting raven bot (id = 426)
 deleting raven bot (id = 427)
-deleting raven bot (id = 428)
