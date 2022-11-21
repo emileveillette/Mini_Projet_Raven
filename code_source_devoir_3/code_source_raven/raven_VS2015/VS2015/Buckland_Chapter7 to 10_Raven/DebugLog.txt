@@ -73,37 +73,28 @@ Creating a shotgun
 Creating a shotgun
 Creating a rocket_launcher
 maps/Raven_DM1.map loaded okay
-Player Possesses bot 403
-Player Possesses bot 403
-Player is exorcised from bot 403
-Player Possesses bot 402
-Player is exorcised from bot 402
+Player Possesses bot 401
+Player Possesses bot 401
 Player is exorcised from bot 401
-Player Possesses bot 403
-Player is exorcised from bot 403
-Player Possesses bot 402
-Player Possesses bot 402
-Player is exorcised from bot 402
-Player Possesses bot 403
-Player Possesses bot 403
-Player is exorcised from bot 403
-Player Possesses bot 480
-Player Possesses bot 480
-Player is exorcised from bot 480
-Player Possesses bot 490
-Player Possesses bot 490
-Player is exorcised from bot 490
-Player Possesses bot 480
-Player Possesses bot 480
-Player is exorcised from bot 480
-Player Possesses bot 490
-Player is exorcised from bot 490
-Player Possesses bot 480
+Player is exorcised from bot 415
+Player Possesses bot 401
+Player Possesses bot 401
+BOT 403 IS STUCK!!
+BOT 420 IS STUCK!!
+BOT 418 IS STUCK!!
+BOT 425 IS STUCK!!
 deleting raven bot (id = 401)
 deleting raven bot (id = 402)
 deleting raven bot (id = 403)
-deleting raven bot (id = 480)
-deleting raven bot (id = 481)
-deleting raven bot (id = 486)
-deleting raven bot (id = 487)
-deleting raven bot (id = 490)
+deleting raven bot (id = 415)
+deleting raven bot (id = 416)
+deleting raven bot (id = 417)
+deleting raven bot (id = 418)
+deleting raven bot (id = 419)
+deleting raven bot (id = 420)
+deleting raven bot (id = 421)
+deleting raven bot (id = 424)
+deleting raven bot (id = 425)
+deleting raven bot (id = 426)
+deleting raven bot (id = 427)
+deleting raven bot (id = 428)

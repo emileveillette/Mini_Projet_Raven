@@ -7,7 +7,8 @@
 //-------------------------------- ctor ---------------------------------------
 //-----------------------------------------------------------------------------
 Raven_TargetingSystem::Raven_TargetingSystem(Raven_Bot* owner):m_pOwner(owner),
-                                                               m_pCurrentTarget(0)
+                                                               m_pCurrentTarget(0),
+                                                               m_pOrderedTarget(nullptr)
 {}
 
 
@@ -24,6 +25,10 @@ void Raven_TargetingSystem::Update()
   {
       m_pCurrentTarget = m_pOrderedTarget;
       return;
+  }
+  else
+  {
+      m_pOrderedTarget = nullptr;
   }
 
   //grab a list of all the opponents the owner can sense

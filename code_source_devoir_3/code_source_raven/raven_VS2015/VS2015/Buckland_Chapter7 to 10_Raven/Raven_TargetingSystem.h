@@ -30,7 +30,7 @@ private:
   Raven_Bot*  m_pCurrentTarget;
 
   //the target ordered by the player.
-  Raven_Bot* m_pOrderedTarget = nullptr;
+  Raven_Bot* m_pOrderedTarget;
 
 
 public:
