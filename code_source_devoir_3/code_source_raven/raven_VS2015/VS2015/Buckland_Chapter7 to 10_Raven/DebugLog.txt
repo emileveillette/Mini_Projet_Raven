@@ -75,25 +75,95 @@ Creating a rocket_launcher
 maps/Raven_DM1.map loaded okay
 Player Possesses bot 402
 Player Possesses bot 402
-BOT 402 IS STUCK!!
-BOT 402 IS STUCK!!
-Player is exorcised from bot 402
-Player is exorcised from bot 401
-Player Possesses bot 423
-Player Possesses bot 423
-Player is exorcised from bot 423
-Player Possesses bot 402
-Player Possesses bot 402
-Player is exorcised from bot 402
-Player Possesses bot 418
+deleting raven bot (id = 403)
+BOT 438 IS STUCK!!
+BOT 442 IS STUCK!!
+BOT 499 IS STUCK!!
+BOT 457 IS STUCK!!
 BOT 401 IS STUCK!!
+BOT 682 IS STUCK!!
+BOT 401 IS STUCK!!
+BOT 466 IS STUCK!!
+BOT 402 IS STUCK!!
+BOT 682 IS STUCK!!
+BOT 410 IS STUCK!!
+BOT 508 IS STUCK!!
+BOT 402 IS STUCK!!
+BOT 409 IS STUCK!!
+BOT 401 IS STUCK!!
+BOT 478 IS STUCK!!
+BOT 466 IS STUCK!!
+BOT 409 IS STUCK!!
+BOT 457 IS STUCK!!
+BOT 691 IS STUCK!!
+BOT 478 IS STUCK!!
+BOT 682 IS STUCK!!
+BOT 438 IS STUCK!!
+BOT 742 IS STUCK!!
+BOT 410 IS STUCK!!
+BOT 409 IS STUCK!!
+BOT 409 IS STUCK!!
+BOT 449 IS STUCK!!
+BOT 401 IS STUCK!!
+BOT 492 IS STUCK!!
+BOT 409 IS STUCK!!
+BOT 698 IS STUCK!!
+BOT 412 IS STUCK!!
+BOT 457 IS STUCK!!
+BOT 716 IS STUCK!!
+BOT 435 IS STUCK!!
+BOT 410 IS STUCK!!
+BOT 492 IS STUCK!!
+BOT 508 IS STUCK!!
+BOT 682 IS STUCK!!
+BOT 478 IS STUCK!!
+BOT 520 IS STUCK!!
+BOT 409 IS STUCK!!
+Player is exorcised from bot 402
+BOT 449 IS STUCK!!
+BOT 457 IS STUCK!!
+BOT 756 IS STUCK!!
+BOT 438 IS STUCK!!
+BOT 499 IS STUCK!!
+BOT 401 IS STUCK!!
+BOT 442 IS STUCK!!
+BOT 682 IS STUCK!!
 deleting raven bot (id = 401)
 deleting raven bot (id = 402)
-deleting raven bot (id = 403)
-deleting raven bot (id = 404)
-deleting raven bot (id = 418)
-deleting raven bot (id = 419)
-deleting raven bot (id = 420)
-deleting raven bot (id = 423)
-deleting raven bot (id = 426)
-deleting raven bot (id = 427)
+deleting raven bot (id = 406)
+deleting raven bot (id = 407)
+deleting raven bot (id = 408)
+deleting raven bot (id = 409)
+deleting raven bot (id = 410)
+deleting raven bot (id = 411)
+deleting raven bot (id = 412)
+deleting raven bot (id = 429)
+deleting raven bot (id = 430)
+deleting raven bot (id = 435)
+deleting raven bot (id = 438)
+deleting raven bot (id = 441)
+deleting raven bot (id = 442)
+deleting raven bot (id = 449)
+deleting raven bot (id = 452)
+deleting raven bot (id = 457)
+deleting raven bot (id = 466)
+deleting raven bot (id = 469)
+deleting raven bot (id = 478)
+deleting raven bot (id = 483)
+deleting raven bot (id = 492)
+deleting raven bot (id = 499)
+deleting raven bot (id = 508)
+deleting raven bot (id = 513)
+deleting raven bot (id = 520)
+deleting raven bot (id = 677)
+deleting raven bot (id = 682)
+deleting raven bot (id = 691)
+deleting raven bot (id = 698)
+deleting raven bot (id = 705)
+deleting raven bot (id = 716)
+deleting raven bot (id = 728)
+deleting raven bot (id = 739)
+deleting raven bot (id = 742)
+deleting raven bot (id = 747)
+deleting raven bot (id = 756)
+deleting raven bot (id = 761)

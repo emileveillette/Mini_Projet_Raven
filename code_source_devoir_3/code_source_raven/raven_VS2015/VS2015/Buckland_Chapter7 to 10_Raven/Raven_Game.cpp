@@ -35,6 +35,7 @@
 //----------------------------- ctor ------------------------------------------
 //-----------------------------------------------------------------------------
 Raven_Game::Raven_Game():m_pSelectedBot(NULL),
+                         m_pTargetedBot(NULL),
                          m_bPaused(false),
                          m_bRemoveABot(false),
                          m_pMap(NULL),
@@ -97,6 +98,7 @@ void Raven_Game::Clear()
   m_PlayerBots.clear();
 
   m_pSelectedBot = NULL;
+  m_pTargetedBot = NULL;
 
 
 }
@@ -186,6 +188,7 @@ void Raven_Game::Update()
     {
       Raven_Bot* pBot = m_Bots.back();
       if (pBot == m_pSelectedBot)m_pSelectedBot=0;
+      if (pBot == m_pTargetedBot)m_pTargetedBot = 0;
       NotifyAllBotsOfRemoval(pBot);
       delete m_Bots.back();
       m_Bots.remove(pBot);
@@ -262,6 +265,10 @@ void Raven_Game::AddBots(unsigned int NumBotsToAdd)
     if (m_Bots.size() % 2 != 0)
     {
         m_PlayerBots.push_back(rb);
+        if (m_pSelectedBot)
+        {
+            rb->SetInPlayerTeam(m_pTargetedBot);
+        }
     }
 
     //register the bot with the entity manager
@@ -424,7 +431,7 @@ void Raven_Game::NotifyTeam(Raven_Bot* pPossessedBot, int msg) const
     }
 }
 
-void Raven_Game::OrderTeamToAim(Raven_Bot* pPossessedBot, Raven_Bot* pAimedBot) const
+void Raven_Game::OrderTeamToAim(Raven_Bot* pPossessedBot, Raven_Bot* pAimedBot)
 {
     std::list<Raven_Bot*>::const_iterator curBot = m_PlayerBots.begin();
     for (curBot; curBot != m_PlayerBots.end(); ++curBot)
@@ -436,6 +443,25 @@ void Raven_Game::OrderTeamToAim(Raven_Bot* pPossessedBot, Raven_Bot* pAimedBot) 
             pAimedBot);
 
     }
+
+    if (m_pTargetedBot && m_pTargetedBot->ID() != pAimedBot->ID())
+    {
+        Dispatcher->DispatchMsg(SEND_MSG_IMMEDIATELY,
+            pPossessedBot->ID(),
+            m_pTargetedBot->ID(),
+            Msg_Untargeted,
+            NO_ADDITIONAL_INFO);
+    }
+    
+    if (!m_pTargetedBot || m_pTargetedBot->ID() != pAimedBot->ID())
+    {
+        m_pTargetedBot = pAimedBot;
+        Dispatcher->DispatchMsg(SEND_MSG_IMMEDIATELY,
+            pPossessedBot->ID(),
+            pAimedBot->ID(),
+            Msg_Targeted,
+            NO_ADDITIONAL_INFO);
+    }
 }
 
 //------------------------- ExorciseAnyPossessedBot ---------------------------
@@ -444,7 +470,20 @@ void Raven_Game::OrderTeamToAim(Raven_Bot* pPossessedBot, Raven_Bot* pAimedBot) 
 //-----------------------------------------------------------------------------
 void Raven_Game::ExorciseAnyPossessedBot()
 {
-  if (m_pSelectedBot) m_pSelectedBot->Exorcise();
+    if (m_pSelectedBot)
+    {
+        m_pSelectedBot->Exorcise();
+        NotifyTeam(m_pSelectedBot, Msg_NotifyTeamOfExorcise);
+        if (m_pTargetedBot)
+        {
+            Dispatcher->DispatchMsg(SEND_MSG_IMMEDIATELY,
+                m_pSelectedBot->ID(),
+                m_pTargetedBot->ID(),
+                Msg_Untargeted,
+                NO_ADDITIONAL_INFO);
+            m_pTargetedBot = nullptr;
+        }
+    }
 }
 
 
@@ -469,12 +508,24 @@ void Raven_Game::ClickRightMouseButton(POINTS p)
   //change selection
   if (pBot && pBot != m_pSelectedBot)
   { 
-    // if the q key is pressed down at the same time as clicking the
+    // if the w key is pressed down at the same time as clicking the
     // team of the player is notified that they have to attack the aimed bot
     if (IS_KEY_PRESSED('W'))
     {
-        if (pBot) { OrderTeamToAim(m_pSelectedBot, pBot); }
-        else { NotifyTeam(m_pSelectedBot, Msg_ClearAimOrder); }
+        if (pBot && !pBot->IsFromPlayerTeam()) { OrderTeamToAim(m_pSelectedBot, pBot); }
+        // if the aimed bot is from the team, cancel the previous targetting.
+        else { 
+            NotifyTeam(m_pSelectedBot, Msg_ClearAimOrder);
+            if (m_pTargetedBot)
+            {
+                Dispatcher->DispatchMsg(SEND_MSG_IMMEDIATELY,
+                    m_pSelectedBot->ID(),
+                    m_pTargetedBot->ID(),
+                    Msg_Untargeted,
+                    NO_ADDITIONAL_INFO);
+                m_pTargetedBot = nullptr;
+            }
+        }
     }
     else
     {
@@ -482,6 +533,15 @@ void Raven_Game::ClickRightMouseButton(POINTS p)
         {
             m_pSelectedBot->Exorcise();
             NotifyTeam(m_pSelectedBot, Msg_NotifyTeamOfExorcise);
+            if (m_pTargetedBot)
+            {
+                Dispatcher->DispatchMsg(SEND_MSG_IMMEDIATELY,
+                    m_pSelectedBot->ID(),
+                    m_pTargetedBot->ID(),
+                    Msg_Untargeted,
+                    NO_ADDITIONAL_INFO);
+                m_pTargetedBot = nullptr;
+            }
         }
         m_pSelectedBot = pBot;
     }
@@ -509,6 +569,20 @@ void Raven_Game::ClickRightMouseButton(POINTS p)
     if (IS_KEY_PRESSED('Q'))
     {
       m_pSelectedBot->GetBrain()->QueueGoal_MoveToPosition(POINTStoVector(p));
+    }
+    // if the w key is pressed down then the targetting is cancelled
+    else if (IS_KEY_PRESSED('W'))
+    {
+        NotifyTeam(m_pSelectedBot, Msg_ClearAimOrder);
+        if (m_pTargetedBot)
+        {
+            Dispatcher->DispatchMsg(SEND_MSG_IMMEDIATELY,
+                m_pSelectedBot->ID(),
+                m_pTargetedBot->ID(),
+                Msg_Untargeted,
+                NO_ADDITIONAL_INFO);
+            m_pTargetedBot = nullptr;
+        }
     }
     else
     {

@@ -21,6 +21,8 @@ enum message_type
   Msg_OpenSesame,
   Msg_GunshotSound,
   Msg_UserHasRemovedBot,
+  Msg_Targeted,
+  Msg_Untargeted,
   Msg_NotifyTeamOfPossess,
   Msg_NotifyTeamOfExorcise,
   Msg_OrderToAim,
@@ -69,6 +71,12 @@ inline std::string MessageToString(int msg)
 
   case Msg_NotifyTeamOfExorcise:
       return "Msg_NotifyTeamOfExorcise";
+
+  case Msg_Targeted:
+      return "Msg_Targeted";
+
+  case Msg_Untargeted:
+      return "Msg_Untargeted";
 
   case Msg_OrderToAim:
       return "Msg_OrderToAim";

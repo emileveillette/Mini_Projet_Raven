@@ -51,6 +51,9 @@ private:
   //bot
   Raven_Bot*                       m_pSelectedBot;
   
+  //the bot targeted by the user
+  Raven_Bot*                       m_pTargetedBot;
+  
   //this list contains any active projectiles (slugs, rockets,
   //shotgun pellets, etc)
   std::list<Raven_Projectile*>     m_Projectiles;
@@ -97,7 +100,7 @@ public:
   bool LoadMap(const std::string& FileName); 
 
   void NotifyTeam(Raven_Bot* pPossessedBot, int msg) const;
-  void OrderTeamToAim(Raven_Bot* pPossessedBot, Raven_Bot* pAimedBot) const;
+  void OrderTeamToAim(Raven_Bot* pPossessedBot, Raven_Bot* pAimedBot);
 
   void AddBots(unsigned int NumBotsToAdd);
   void AddRocket(Raven_Bot* shooter, Vector2D target);

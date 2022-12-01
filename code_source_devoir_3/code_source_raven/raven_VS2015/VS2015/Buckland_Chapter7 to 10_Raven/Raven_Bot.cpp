@@ -47,6 +47,7 @@ Raven_Bot::Raven_Bot(Raven_Game* world,Vector2D pos):
                  m_Status(spawning),
                  m_bPossessed(false),
                  m_bInPlayerTeam(false),
+                 m_bTargeted(false),
                  m_dFieldOfView(DegsToRads(script->GetDouble("Bot_FOV")))
            
 {
@@ -273,8 +274,22 @@ bool Raven_Bot::HandleMessage(const Telegram& msg)
         GetTargetSys()->ClearTarget();
       }
 
+      //if the removed bot was the player, remove from player team and remove target
+      if (pRemovedBot->isPossessed())
+      {
+          m_bInPlayerTeam = false;
+          m_bTargeted = false;
+      }
+          
+
       return true;
     }
+  case Msg_Targeted:
+      m_bTargeted = true;
+      return true;
+  case Msg_Untargeted:
+      m_bTargeted = false;
+      return true;
   case Msg_NotifyTeamOfPossess:
       m_bInPlayerTeam = true;
 
@@ -282,6 +297,7 @@ bool Raven_Bot::HandleMessage(const Telegram& msg)
   
   case Msg_NotifyTeamOfExorcise:
       m_bInPlayerTeam = false;
+      GetTargetSys()->ClearTarget();
 
       return true;
 
@@ -386,6 +402,7 @@ void Raven_Bot::Exorcise()
 {
   m_bPossessed = false;
   m_bInPlayerTeam = false;
+  GetTargetSys()->ClearTarget();
 
   //when the player is exorcised then the bot should resume normal service
   m_pBrain->AddGoal_Explore();
@@ -393,6 +410,12 @@ void Raven_Bot::Exorcise()
   debug_con << "Player is exorcised from bot " << this->ID() << "";
 }
 
+void Raven_Bot::SetInPlayerTeam(Raven_Bot* currentTarget)
+{
+    m_bInPlayerTeam = true;
+    if (currentTarget)
+        GetTargetSys()->OrderTarget(currentTarget);
+}
 
 //----------------------- ChangeWeapon ----------------------------------------
 void Raven_Bot::ChangeWeapon(unsigned int type)
@@ -529,6 +552,16 @@ void Raven_Bot::Render()
 
   //render the bot's weapon
   m_pWeaponSys->RenderCurrentWeapon();
+
+  if (m_bTargeted)
+  {
+      double crossHairRadius = BRadius() + 5;
+      gdi->RedPen(); // pen = border
+      gdi->HollowBrush(); // brush = inside
+      gdi->Circle(m_vPosition, crossHairRadius);
+      gdi->Line(m_vPosition + Vector2D(0, crossHairRadius), m_vPosition - Vector2D(0, crossHairRadius));
+      gdi->Line(m_vPosition + Vector2D(crossHairRadius, 0), m_vPosition - Vector2D(crossHairRadius,0));
+  }
 
   //render a thick red circle if the bot gets hit by a weapon
   if (m_bHit)
