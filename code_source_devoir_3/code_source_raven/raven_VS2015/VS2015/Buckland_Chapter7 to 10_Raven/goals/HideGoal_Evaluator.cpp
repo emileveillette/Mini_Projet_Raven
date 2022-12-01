@@ -29,6 +29,9 @@ double HideGoal_Evaluator::CalculateDesirability(Raven_Bot* pBot)
 		Desirability = Tweaker * ((1 - Raven_Feature::Health(pBot)) / 3 + scorer);
 	}
 
+	//ensure the value is in the range 0 to 1
+	Clamp(Desirability, 0, 1);
+
 	return Desirability;
 }
 
