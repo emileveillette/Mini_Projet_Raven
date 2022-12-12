@@ -274,6 +274,9 @@
     <ClCompile Include="CNeuralNet.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="LearningBot.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Raven_Bot.h">

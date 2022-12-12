@@ -217,6 +217,7 @@
   <ItemGroup>
     <ClCompile Include="CData.cpp" />
     <ClCompile Include="CNeuralNet.cpp" />
+    <ClCompile Include="LearningBot.cpp" />
     <ClCompile Include="main.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>

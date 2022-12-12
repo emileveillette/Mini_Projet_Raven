@@ -81,6 +81,10 @@ Raven_Bot::Raven_Bot(Raven_Game* world,Vector2D pos):
                                         script->GetDouble("Bot_AimPersistance"));
 
   m_pSensoryMem = new Raven_SensoryMemory(this, script->GetDouble("Bot_MemorySpan"));
+
+  //initialisation pour les données d'observation du training set
+  m_vecObservation = std::vector<double>(0);
+  m_vecTarget = std::vector<double>(0);
 }
 
 //-------------------------------- dtor ---------------------------------------
@@ -130,36 +134,60 @@ void Raven_Bot::Update()
 
   //if the bot is under AI control but not scripted
   if (!isPossessed())
-  {           
-    //examine all the opponents in the bots sensory memory and select one
-    //to be the current target
-    if (m_pTargetSelectionRegulator->isReady())
-    {      
-      m_pTargSys->Update();
-    }
+  {
+	  //examine all the opponents in the bots sensory memory and select one
+	  //to be the current target
+	  if (m_pTargetSelectionRegulator->isReady())
+	  {
+		  m_pTargSys->Update();
+	  }
 
-    //appraise and arbitrate between all possible high level goals
-    if (m_pGoalArbitrationRegulator->isReady())
-    {
-       m_pBrain->Arbitrate(); 
-    }
+	  //appraise and arbitrate between all possible high level goals
+	  if (m_pGoalArbitrationRegulator->isReady())
+	  {
+		  m_pBrain->Arbitrate();
+	  }
 
-    //update the sensory memory with any visual stimulus
-    if (m_pVisionUpdateRegulator->isReady())
-    {
-      m_pSensoryMem->UpdateVision();
-    }
-  
-    //select the appropriate weapon to use from the weapons currently in
-    //the inventory
-    if (m_pWeaponSelectionRegulator->isReady())
-    {       
-      m_pWeaponSys->SelectWeapon();       
-    }
+	  //update the sensory memory with any visual stimulus
+	  if (m_pVisionUpdateRegulator->isReady())
+	  {
+		  m_pSensoryMem->UpdateVision();
+	  }
 
-    //this method aims the bot's current weapon at the current target
-    //and takes a shot if a shot is possible
-    m_pWeaponSys->TakeAimAndShoot();
+	  //select the appropriate weapon to use from the weapons currently in
+	  //the inventory
+	  if (m_pWeaponSelectionRegulator->isReady())
+	  {
+		  m_pWeaponSys->SelectWeapon();
+	  }
+
+	  //this method aims the bot's current weapon at the current target
+	  //and takes a shot if a shot is possible
+	  bool haveShoot = m_pWeaponSys->TakeAimAndShoot();
+
+	 
+	  
+	  //sauvegarder les données pour un eventuel apprentissage
+
+	 
+	if(m_pTargSys->isTargetPresent()){
+
+	  m_vecObservation.clear();
+	  m_vecTarget.clear();
+
+	  m_vecObservation.push_back((Pos().Distance(m_pTargSys->GetTarget()->Pos())));
+	  m_vecObservation.push_back(m_pTargSys->isTargetWithinFOV());
+	  m_vecObservation.push_back(m_pWeaponSys->GetAmmoRemainingForWeapon(m_pWeaponSys->GetCurrentWeapon()->GetType()));
+	  m_vecObservation.push_back(m_pWeaponSys->GetCurrentWeapon()->GetType());
+	  m_vecObservation.push_back((Health()));
+
+	  if (!haveShoot) {
+		  m_vecTarget.push_back(0); // La classe est négative.  Ne tire pas 
+	  }
+	  else {
+		  m_vecTarget.push_back(1); // la classe de l'observation est positive. Il tire
+	  }
+	}
   }
 }
 
