@@ -203,8 +203,8 @@ void Raven_Game::Update()
     {
       (*curBot)->Update();
 
-      //on crée un échantillon de 200 observations. Juste assez pour ne pas s'accaparer de la mémoire...
-      if ((m_TrainingSet.GetInputSet().size() < 200) & ((*curBot)->Score() > 1)) {
+      //on crée un échantillon de 500 observations. Juste assez pour ne pas s'accaparer de la mémoire...
+      if ((m_TrainingSet.GetInputSet().size() < 500) & ((*curBot)->Score() > 1)) {
 
           //ajouter une observation au jeu d'entrainement
           AddData((*curBot)->GetDataShoot(), (*curBot)->GetTargetShoot());
@@ -237,7 +237,7 @@ void Raven_Game::Update()
   //Lancer l'apprentissage quand le jeu de données est suffisant
   //la fonction d'apprentissage s'effectue en parallèle : thread
 
-  if ((m_TrainingSet.GetInputSet().size() >= 200) & (!m_LancerApprentissage)) {
+  if ((m_TrainingSet.GetInputSet().size() >= 500) & (!m_LancerApprentissage)) {
 
 
       debug_con << "On passe par la" << "";
