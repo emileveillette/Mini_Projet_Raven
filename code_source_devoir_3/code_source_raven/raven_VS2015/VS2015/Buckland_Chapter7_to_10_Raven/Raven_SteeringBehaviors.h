@@ -29,9 +29,9 @@ class Raven_Game;
 //--------------------------- Constants ----------------------------------
 
 //the radius of the constraining circle for the wander behavior
-const double WanderRad    = 1.2;
+const double WanderRad = 1.2;
 //distance the wander circle is projected in front of the agent
-const double WanderDist   = 2.0;
+const double WanderDist = 2.0;
 //the maximum amount of displacement along the circle each frame
 const double WanderJitterPerSec = 40.0;
 
@@ -45,36 +45,37 @@ class Raven_Steering
 {
 public:
   
-  enum summing_method{weighted_average, prioritized, dithered};
+    enum summing_method { weighted_average, prioritized, dithered };
 
 private:
 
   enum behavior_type
   {
-    none               = 0x00000,
-    seek               = 0x00002,
-    arrive             = 0x00008,
-    wander             = 0x00010,
-    separation         = 0x00040,
-    wall_avoidance     = 0x00200,
+        none = 0x00000,
+        seek = 0x00002,
+        flee = 0x00004,
+        arrive = 0x00008,
+        wander = 0x00010,
+        separation = 0x00040,
+        wall_avoidance = 0x00200,
   };
 
 private:
 
   
   //a pointer to the owner of this instance
-  Raven_Bot*     m_pRaven_Bot; 
+    Raven_Bot* m_pRaven_Bot;
   
   //pointer to the world data
-  Raven_Game*    m_pWorld;
+    Raven_Game* m_pWorld;
   
   //the steering force created by the combined effect of all
   //the selected behaviors
   Vector2D       m_vSteeringForce;
  
   //these can be used to keep track of friends, pursuers, or prey
-  Raven_Bot*     m_pTargetAgent1;
-  Raven_Bot*     m_pTargetAgent2;
+    Raven_Bot* m_pTargetAgent1;
+    Raven_Bot* m_pTargetAgent2;
 
   //the current target
   Vector2D    m_vTarget;
@@ -103,6 +104,7 @@ private:
   double        m_dWeightWander;
   double        m_dWeightWallAvoidance;
   double        m_dWeightSeek;
+    double        m_dWeightFlee;
   double        m_dWeightArrive;
 
 
@@ -115,7 +117,7 @@ private:
   
   //Arrive makes use of these to determine how quickly a Raven_Bot
   //should decelerate to its target
-  enum Deceleration{slow = 3, normal = 2, fast = 1};
+    enum Deceleration { slow = 3, normal = 2, fast = 1 };
 
   //default
   Deceleration m_Deceleration;
@@ -128,9 +130,9 @@ private:
 
 
   //this function tests if a specific bit of m_iFlags is set
-  bool      On(behavior_type bt){return (m_iFlags & bt) == bt;}
+    bool      On(behavior_type bt) { return (m_iFlags & bt) == bt; }
 
-  bool      AccumulateForce(Vector2D &sf, Vector2D ForceToAdd);
+    bool      AccumulateForce(Vector2D& sf, Vector2D ForceToAdd);
 
   //creates the antenna utilized by the wall avoidance behavior
   void      CreateFeelers();
@@ -145,11 +147,15 @@ private:
 
 
   //this behavior moves the agent towards a target position
-  Vector2D Seek(const Vector2D &target);
+    Vector2D Seek(const Vector2D& target);
+
+    //this behavior returns a vector that moves the agent away
+  //from a target position
+    Vector2D Flee(Vector2D TargetPos);
 
   //this behavior is similar to seek but it attempts to arrive 
   //at the target with a zero velocity
-  Vector2D Arrive(const Vector2D    &target,
+    Vector2D Arrive(const Vector2D& target,
                   const Deceleration deceleration);
 
   //this behavior makes the agent wander about randomly
@@ -157,10 +163,10 @@ private:
 
   //this returns a steering force which will keep the agent away from any
   //walls it may encounter
-  Vector2D WallAvoidance(const std::vector<Wall2D*> &walls);
+    Vector2D WallAvoidance(const std::vector<Wall2D*>& walls);
 
   
-  Vector2D Separation(const std::list<Raven_Bot*> &agents);
+    Vector2D Separation(const std::list<Raven_Bot*>& agents);
 
 
     /* .......................................................
@@ -191,43 +197,46 @@ public:
   double    SideComponent();
 
 
-  void      SetTarget(Vector2D t){m_vTarget = t;}
-  Vector2D  Target()const{return m_vTarget;}
+    void      SetTarget(Vector2D t) { m_vTarget = t; }
+    Vector2D  Target()const { return m_vTarget; }
 
-  void      SetTargetAgent1(Raven_Bot* Agent){m_pTargetAgent1 = Agent;}
-  void      SetTargetAgent2(Raven_Bot* Agent){m_pTargetAgent2 = Agent;}
-
-
-  Vector2D  Force()const{return m_vSteeringForce;}
-
-  void      SetSummingMethod(summing_method sm){m_SummingMethod = sm;}
+    void      SetTargetAgent1(Raven_Bot* Agent) { m_pTargetAgent1 = Agent; }
+    void      SetTargetAgent2(Raven_Bot* Agent) { m_pTargetAgent2 = Agent; }
 
 
-  void SeekOn(){m_iFlags |= seek;}
-  void ArriveOn(){m_iFlags |= arrive;}
-  void WanderOn(){m_iFlags |= wander;}
-  void SeparationOn(){m_iFlags |= separation;}
-  void WallAvoidanceOn(){m_iFlags |= wall_avoidance;}
+    Vector2D  Force()const { return m_vSteeringForce; }
 
-  void SeekOff()  {if(On(seek))   m_iFlags ^=seek;}
-  void ArriveOff(){if(On(arrive)) m_iFlags ^=arrive;}
-  void WanderOff(){if(On(wander)) m_iFlags ^=wander;}
-  void SeparationOff(){if(On(separation)) m_iFlags ^=separation;}
-  void WallAvoidanceOff(){if(On(wall_avoidance)) m_iFlags ^=wall_avoidance;}
+    void      SetSummingMethod(summing_method sm) { m_SummingMethod = sm; }
 
-  bool SeekIsOn(){return On(seek);}
-  bool ArriveIsOn(){return On(arrive);}
-  bool WanderIsOn(){return On(wander);}
-  bool SeparationIsOn(){return On(separation);}
-  bool WallAvoidanceIsOn(){return On(wall_avoidance);}
 
-  const std::vector<Vector2D>& GetFeelers()const{return m_Feelers;}
+    void FleeOn() { m_iFlags |= flee; }
+    void SeekOn() { m_iFlags |= seek; }
+    void ArriveOn() { m_iFlags |= arrive; }
+    void WanderOn() { m_iFlags |= wander; }
+    void SeparationOn() { m_iFlags |= separation; }
+    void WallAvoidanceOn() { m_iFlags |= wall_avoidance; }
+
+    void FleeOff() { if (On(flee))   m_iFlags ^= flee; }
+    void SeekOff() { if (On(seek))   m_iFlags ^= seek; }
+    void ArriveOff() { if (On(arrive)) m_iFlags ^= arrive; }
+    void WanderOff() { if (On(wander)) m_iFlags ^= wander; }
+    void SeparationOff() { if (On(separation)) m_iFlags ^= separation; }
+    void WallAvoidanceOff() { if (On(wall_avoidance)) m_iFlags ^= wall_avoidance; }
+
+    bool isFleeOn() { return On(flee); }
+    bool SeekIsOn() { return On(seek); }
+    bool ArriveIsOn() { return On(arrive); }
+    bool WanderIsOn() { return On(wander); }
+    bool SeparationIsOn() { return On(separation); }
+    bool WallAvoidanceIsOn() { return On(wall_avoidance); }
+
+    const std::vector<Vector2D>& GetFeelers()const { return m_Feelers; }
   
-  double WanderJitter()const{return m_dWanderJitter;}
-  double WanderDistance()const{return m_dWanderDistance;}
-  double WanderRadius()const{return m_dWanderRadius;}
+    double WanderJitter()const { return m_dWanderJitter; }
+    double WanderDistance()const { return m_dWanderDistance; }
+    double WanderRadius()const { return m_dWanderRadius; }
 
-  double SeparationWeight()const{return m_dWeightSeparation;}
+    double SeparationWeight()const { return m_dWeightSeparation; }
 
 };
 

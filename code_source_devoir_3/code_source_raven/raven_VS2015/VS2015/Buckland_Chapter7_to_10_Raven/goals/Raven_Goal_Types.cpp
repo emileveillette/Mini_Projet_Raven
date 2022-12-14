@@ -9,7 +9,7 @@ GoalTypeToString* GoalTypeToString::Instance()
 
 std::string GoalTypeToString::Convert(int gt)
 {
-  switch(gt)
+    switch (gt)
   {
   case goal_explore:
 
@@ -82,6 +82,9 @@ std::string GoalTypeToString::Convert(int gt)
   case goal_say_phrase:
 
     return "say_phrase";
+
+    case goal_Hide:
+        return "Hide";
 
   default:
 

@@ -20,7 +20,7 @@ using std::vector;
 //------------------------- ctor -----------------------------------------
 //
 //------------------------------------------------------------------------
-Raven_Steering::Raven_Steering(Raven_Game* world, Raven_Bot* agent):
+Raven_Steering::Raven_Steering(Raven_Game* world, Raven_Bot* agent) :
                                   
              m_pWorld(world),
              m_pRaven_Bot(agent),
@@ -38,6 +38,7 @@ Raven_Steering::Raven_Steering(Raven_Game* world, Raven_Bot* agent):
              m_dWanderJitter(WanderJitterPerSec),
              m_dWanderRadius(WanderRad),
              m_dWeightSeek(script->GetDouble("SeekWeight")),
+    m_dWeightFlee(script->GetDouble("FleeWeight")),
              m_dWeightArrive(script->GetDouble("ArriveWeight")),
              m_bCellSpaceOn(false),
              m_SummingMethod(prioritized)
@@ -55,7 +56,7 @@ Raven_Steering::Raven_Steering(Raven_Game* world, Raven_Bot* agent):
 }
 
 //---------------------------------dtor ----------------------------------
-Raven_Steering::~Raven_Steering(){}
+Raven_Steering::~Raven_Steering() {}
 
 
 /////////////////////////////////////////////////////////////////////////////// CALCULATE METHODS 
@@ -181,6 +182,13 @@ Vector2D Raven_Steering::CalculatePrioritized()
     if (!AccumulateForce(m_vSteeringForce, force)) return m_vSteeringForce;
   }
 
+    if (On(flee))
+    {
+        force = Flee(m_vTarget) * m_dWeightFlee;
+
+        if (!AccumulateForce(m_vSteeringForce, force)) return m_vSteeringForce;
+    }
+
 
   if (On(arrive))
   {
@@ -195,6 +203,7 @@ Vector2D Raven_Steering::CalculatePrioritized()
 
     if (!AccumulateForce(m_vSteeringForce, force)) return m_vSteeringForce;
   }
+
 
 
   return m_vSteeringForce;
@@ -218,12 +227,34 @@ Vector2D Raven_Steering::Seek(const Vector2D &target)
 }
 
 
+//----------------------------- Flee -------------------------------------
+//
+//  Does the opposite of Seek
+//------------------------------------------------------------------------
+Vector2D Raven_Steering::Flee(Vector2D TargetPos)
+{
+    //only flee if the target is within 'panic distance'. Work in distance
+    //squared space.
+   /* const double PanicDistanceSq = 100.0f * 100.0;
+    if (Vec2DDistanceSq(m_pVehicle->Pos(), target) > PanicDistanceSq)
+    {
+      return Vector2D(0,0);
+    }
+    */
+
+    Vector2D DesiredVelocity = Vec2DNormalize(m_pRaven_Bot->Pos() - TargetPos)
+        * m_pRaven_Bot->MaxSpeed();
+
+    return (DesiredVelocity - m_pRaven_Bot->Velocity());
+}
+
+
 //--------------------------- Arrive -------------------------------------
 //
 //  This behavior is similar to seek but it attempts to arrive at the
 //  target with a zero velocity
 //------------------------------------------------------------------------
-Vector2D Raven_Steering::Arrive(const Vector2D    &target,
+Vector2D Raven_Steering::Arrive(const Vector2D& target,
                                 const Deceleration deceleration)
 {
   Vector2D ToTarget = target - m_pRaven_Bot->Pos();
@@ -239,7 +270,7 @@ Vector2D Raven_Steering::Arrive(const Vector2D    &target,
 
     //calculate the speed required to reach the target given the desired
     //deceleration
-    double speed =  dist / ((double)deceleration * DecelerationTweaker);     
+        double speed = dist / ((double)deceleration * DecelerationTweaker);
 
     //make sure the velocity does not exceed the max
     speed = MinOf(speed, m_pRaven_Bot->MaxSpeed());
@@ -247,12 +278,12 @@ Vector2D Raven_Steering::Arrive(const Vector2D    &target,
     //from here proceed just like Seek except we don't need to normalize 
     //the ToTarget vector because we have already gone to the trouble
     //of calculating its length: dist. 
-    Vector2D DesiredVelocity =  ToTarget * speed / dist;
+        Vector2D DesiredVelocity = ToTarget * speed / dist;
 
     return (DesiredVelocity - m_pRaven_Bot->Velocity());
   }
 
-  return Vector2D(0,0);
+    return Vector2D(0, 0);
 }
 
 
@@ -293,12 +324,12 @@ Vector2D Raven_Steering::Wander()
 //  This returns a steering force that will keep the agent away from any
 //  walls it may encounter
 //------------------------------------------------------------------------
-Vector2D Raven_Steering::WallAvoidance(const vector<Wall2D*> &walls)
+Vector2D Raven_Steering::WallAvoidance(const vector<Wall2D*>& walls)
 {
   //the feelers are contained in a std::vector, m_Feelers
   CreateFeelers();
   
-  double DistToThisIP    = 0.0;
+    double DistToThisIP = 0.0;
   double DistToClosestIP = MaxDouble;
 
   //this will hold an index into the vector of walls
@@ -309,10 +340,10 @@ Vector2D Raven_Steering::WallAvoidance(const vector<Wall2D*> &walls)
             ClosestPoint;  //holds the closest intersection point
 
   //examine each feeler in turn
-  for (unsigned int flr=0; flr<m_Feelers.size(); ++flr)
+    for (unsigned int flr = 0; flr < m_Feelers.size(); ++flr)
   {
     //run through each wall checking for any intersection points
-    for (unsigned int w=0; w<walls.size(); ++w)
+        for (unsigned int w = 0; w < walls.size(); ++w)
     {
       if (LineIntersection2D(m_pRaven_Bot->Pos(),
                              m_Feelers[flr],
@@ -336,7 +367,7 @@ Vector2D Raven_Steering::WallAvoidance(const vector<Wall2D*> &walls)
   
     //if an intersection point has been detected, calculate a force  
     //that will direct the agent away
-    if (ClosestWall >=0)
+        if (ClosestWall >= 0)
     {
       //calculate by what distance the projected position of the agent
       //will overshoot the wall
@@ -365,12 +396,12 @@ void Raven_Steering::CreateFeelers()
   //feeler to left
   Vector2D temp = m_pRaven_Bot->Heading();
   Vec2DRotateAroundOrigin(temp, HalfPi * 3.5);
-  m_Feelers[1] = m_pRaven_Bot->Pos() + m_dWallDetectionFeelerLength/2.0 * temp;
+    m_Feelers[1] = m_pRaven_Bot->Pos() + m_dWallDetectionFeelerLength / 2.0 * temp;
 
   //feeler to right
   temp = m_pRaven_Bot->Heading();
   Vec2DRotateAroundOrigin(temp, HalfPi * 0.5);
-  m_Feelers[2] = m_pRaven_Bot->Pos() + m_dWallDetectionFeelerLength/2.0 * temp;
+    m_Feelers[2] = m_pRaven_Bot->Pos() + m_dWallDetectionFeelerLength / 2.0 * temp;
 }
 
 
@@ -389,14 +420,14 @@ Vector2D Raven_Steering::Separation(const std::list<Raven_Bot*>& neighbors)
     //make sure this agent isn't included in the calculations and that
     //the agent being examined is close enough. ***also make sure it doesn't
     //include the evade target ***
-    if((*it != m_pRaven_Bot) && (*it)->IsTagged() &&
+        if ((*it != m_pRaven_Bot) && (*it)->IsTagged() &&
       (*it != m_pTargetAgent1))
     {
       Vector2D ToAgent = m_pRaven_Bot->Pos() - (*it)->Pos();
 
       //scale the force inversely proportional to the agents distance  
       //from its neighbor.
-      SteeringForce += Vec2DNormalize(ToAgent)/ToAgent.Length();
+            SteeringForce += Vec2DNormalize(ToAgent) / ToAgent.Length();
     }
   }
 
