@@ -16,6 +16,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{EC1EBBC4-4F57-4002-856A-5C1BCFBC7BF9}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -217,6 +218,9 @@
   <ItemGroup>
     <ClCompile Include="goals\Goal_Hide.cpp" />
     <ClCompile Include="goals\HideGoal_Evaluator.cpp" />
+    <ClCompile Include="CData.cpp" />
+    <ClCompile Include="CNeuralNet.cpp" />
+    <ClCompile Include="LearningBot.cpp" />
     <ClCompile Include="main.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -536,6 +540,9 @@
   <ItemGroup>
     <ClInclude Include="goals\Goal_Hide.h" />
     <ClInclude Include="goals\HideGoal_Evaluator.h" />
+    <ClInclude Include="CData.h" />
+    <ClInclude Include="CNeuralNet.h" />
+    <ClInclude Include="LearningBot.h" />
     <ClInclude Include="Raven_Bot.h" />
     <ClInclude Include="Raven_Game.h" />
     <ClInclude Include="Raven_Map.h" />

@@ -13,6 +13,10 @@
 //-----------------------------------------------------------------------------
 #include <map>
 #include "2d/vector2d.h"
+#include "fuzzy/FuzzyOperators.h"
+#include "Fuzzy/FuzzyModule.h"
+
+#include"armory/Raven_Weapon.h"
 
 class Raven_Bot;
 class Raven_Weapon;
@@ -30,9 +34,23 @@ private:
 
   Raven_Bot*       m_pOwner;
 
+
+  Raven_WeaponSystem* WeaponSystem;
+
   //pointers to the weapons the bot is carrying (a bot may only carry one
   //instance of each weapon)
   WeaponMap        m_WeaponMap;
+
+  //calculate the distance to the target
+
+
+  //We use fuzzy logic to find the desirability of where to aim when an ennemy is spotted.
+  FuzzyModule   m_FuzzyModule;
+
+  //this is used to keep a local copy of the previous desirability score
+  //so that we can give some feedback for debugging
+  double         m_dLastDesirabilityScore;
+
 
   //a pointer to the weapon the bot is currently holding
   Raven_Weapon*    m_pCurrentWeapon;
@@ -47,7 +65,7 @@ private:
   //their opponents 100% of the time. The lower this value the more accurate
   //a bot's aim will be. Recommended values are between 0 and 0.2 (the value
   //represents the max deviation in radians that can be added to each shot).
-  double            m_dAimAccuracy;
+  double         m_dAimAccuracy;
 
   //the amount of time a bot will continue aiming at the position of the target
   //even if the target disappears from view.
@@ -59,7 +77,7 @@ private:
 
   //adds a random deviation to the firing angle not greater than m_dAimAccuracy 
   //rads
-  void        AddNoiseToAim(Vector2D& AimingPos)const;
+  void        AddNoiseToAim(Vector2D& AimingPos);
 
 public:
 
@@ -76,7 +94,7 @@ public:
   //this method aims the bot's current weapon at the target (if there is a
   //target) and, if aimed correctly, fires a round. (Called each update-step
   //from Raven_Bot::Update)
-  void          TakeAimAndShoot()const;
+  bool          TakeAimAndShoot();
 
   //this method determines the most appropriate weapon to use given the current
   //game state. (Called every n update-steps from Raven_Bot::Update)
@@ -108,6 +126,8 @@ public:
 
   void          RenderCurrentWeapon()const;
   void          RenderDesirabilities()const;
+  double        PoidsDeviationTir(double distToTarget, double visibleTime);
+  void          InitializeFuzzyModule();
 };
 
 #endif

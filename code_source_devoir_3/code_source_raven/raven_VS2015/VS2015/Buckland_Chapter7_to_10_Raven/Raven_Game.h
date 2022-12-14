@@ -25,6 +25,8 @@
 #include "game/EntityFunctionTemplates.h"
 #include "Raven_Bot.h"
 #include "navigation/pathmanager.h"
+#include "CData.h"
+#include "CNeuralNet.h"
 
 
 class BaseGameEntity;
@@ -81,6 +83,20 @@ private:
   //their memory
   void NotifyAllBotsOfRemoval(Raven_Bot* pRemovedBot)const;
   
+  CData m_TrainingSet; // jeu d'apprentissage
+
+  bool m_LancerApprentissage; // pour lancer l'apprentissage
+
+  CNeuralNet m_ModeleApprentissage;
+
+  bool AddData(vector<double>& data, vector<double>& targets);
+
+  void TrainThread();
+
+  bool m_estEntraine;
+
+
+
 public:
   
   Raven_Game();
@@ -93,7 +109,7 @@ public:
   //loads an environment from a file
   bool LoadMap(const std::string& FileName); 
 
-  void AddBots(unsigned int NumBotsToAdd);
+  void AddBots(unsigned int NumBotsToAdd, bool typeBot);
   void AddRocket(Raven_Bot* shooter, Vector2D target);
   void AddRailGunSlug(Raven_Bot* shooter, Vector2D target);
   void AddShotGunPellet(Raven_Bot* shooter, Vector2D target);
@@ -153,7 +169,9 @@ public:
   Raven_Bot*  PossessedBot()const{return m_pSelectedBot;}
   void        ChangeWeaponOfPossessedBot(unsigned int weapon)const;
 
-  
+  CNeuralNet getModeleApprentissage() { return m_ModeleApprentissage; }
+
+
   const Raven_Map* const                   GetMap()const{return m_pMap;}
   Raven_Map* const                         GetMap(){return m_pMap;}
   const std::list<Raven_Bot*>&             GetAllBots()const{return m_Bots;}

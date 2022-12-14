@@ -23,6 +23,7 @@ Raven_WeaponSystem::Raven_WeaponSystem(Raven_Bot* owner,
                                                           m_dAimPersistance(AimPersistance)
 {
   Initialize();
+  InitializeFuzzyModule();
 }
 
 //------------------------- dtor ----------------------------------------------
@@ -68,9 +69,6 @@ void Raven_WeaponSystem::SelectWeapon()
   //weapon.
   if (m_pOwner->GetTargetSys()->isTargetPresent())
   {
-    //calculate the distance to the target
-    double DistToTarget = Vec2DDistance(m_pOwner->Pos(), m_pOwner->GetTargetSys()->GetTarget()->Pos());
-
     //for each weapon in the inventory calculate its desirability given the 
     //current situation. The most desirable weapon is selected
     double BestSoFar = MinDouble;
@@ -82,6 +80,7 @@ void Raven_WeaponSystem::SelectWeapon()
       //distance to target and ammo remaining)
       if (curWeap->second)
       {
+        double DistToTarget = Vec2DDistance(m_pOwner->Pos(), m_pOwner->GetTargetSys()->GetTarget()->Pos());
         double score = curWeap->second->GetDesirability(DistToTarget);
 
         //if it is the most desirable so far select it
@@ -168,12 +167,14 @@ void Raven_WeaponSystem::ChangeWeapon(unsigned int type)
   if (w) m_pCurrentWeapon = w;
 }
 
+//Question b)
 //--------------------------- TakeAimAndShoot ---------------------------------
 //
 //  this method aims the bots current weapon at the target (if there is a
 //  target) and, if aimed correctly, fires a round
 //-----------------------------------------------------------------------------
-void Raven_WeaponSystem::TakeAimAndShoot()const
+bool Raven_WeaponSystem::TakeAimAndShoot()
+
 {
   //aim the weapon only if the current target is shootable or if it has only
   //very recently gone out of view (this latter condition is to ensure the 
@@ -185,6 +186,7 @@ void Raven_WeaponSystem::TakeAimAndShoot()const
   {
     //the position the weapon will be aimed at
     Vector2D AimingPos = m_pOwner->GetTargetBot()->Pos();
+   
     
     //if the current weapon is not an instant hit type gun the target position
     //must be adjusted to take into account the predicted movement of the 
@@ -205,6 +207,7 @@ void Raven_WeaponSystem::TakeAimAndShoot()const
         AddNoiseToAim(AimingPos);
 
         GetCurrentWeapon()->ShootAt(AimingPos);
+        return true;
       }
     }
 
@@ -220,6 +223,7 @@ void Raven_WeaponSystem::TakeAimAndShoot()const
         AddNoiseToAim(AimingPos);
         
         GetCurrentWeapon()->ShootAt(AimingPos);
+        return true;
       }
     }
 
@@ -230,6 +234,7 @@ void Raven_WeaponSystem::TakeAimAndShoot()const
   else
   {
     m_pOwner->RotateFacingTowardPosition(m_pOwner->Pos()+ m_pOwner->Heading());
+    return false;
   }
 }
 
@@ -238,11 +243,15 @@ void Raven_WeaponSystem::TakeAimAndShoot()const
 //  adds a random deviation to the firing angle not greater than m_dAimAccuracy 
 //  rads
 //-----------------------------------------------------------------------------
-void Raven_WeaponSystem::AddNoiseToAim(Vector2D& AimingPos)const
+void Raven_WeaponSystem::AddNoiseToAim(Vector2D& AimingPos)
 {
   Vector2D toPos = AimingPos - m_pOwner->Pos();
+  Vector2D ToEnemy = m_pOwner->GetTargetBot()->Pos() - m_pOwner->Pos();
+  double distToTarget = ToEnemy.Length();
+  double visibleTime = m_pOwner->GetTargetSys()->GetTimeTargetHasBeenVisible();
+  double aimAccuracy = (0.2 * PoidsDeviationTir(distToTarget, visibleTime));
 
-  Vec2DRotateAroundOrigin(toPos, RandInRange(-m_dAimAccuracy, m_dAimAccuracy));
+  Vec2DRotateAroundOrigin(toPos, aimAccuracy);
 
   AimingPos = toPos + m_pOwner->Pos();
 }
@@ -329,4 +338,42 @@ void Raven_WeaponSystem::RenderDesirabilities()const
         offset+=15;
       }
     }
+}
+
+double Raven_WeaponSystem::PoidsDeviationTir(double distToTarget, double visibleTime) 
+{
+    m_FuzzyModule.Fuzzify("DistToTarget", distToTarget);
+    m_FuzzyModule.Fuzzify("VisibleTime", visibleTime);
+    return(m_FuzzyModule.DeFuzzify("Deviation", FuzzyModule::max_av) / 100);
+}
+
+void Raven_WeaponSystem::InitializeFuzzyModule()
+{
+    FuzzyVariable& DistToTarget = m_FuzzyModule.CreateFLV("DistToTarget");
+    FzSet& Target_Close = DistToTarget.AddLeftShoulderSet("Target_Close", 0, 25, 150);
+    FzSet& Target_Medium = DistToTarget.AddTriangularSet("Target_Medium", 25, 150, 300);
+    FzSet& Target_Far = DistToTarget.AddRightShoulderSet("Target_Far", 150, 300, 1000);
+
+    FuzzyVariable& Deviation = m_FuzzyModule.CreateFLV("Deviation");
+    FzSet& Deviate_Much = Deviation.AddRightShoulderSet("Deviate_Much", 0.1, 0.15, 0.2);
+    FzSet& Deviate_Small = Deviation.AddTriangularSet("Deviate_Small", 0, 0.05, 0.1);
+    FzSet& No_Deviate = Deviation.AddLeftShoulderSet("No_Deviate", 0, 0, 0);
+
+    FuzzyVariable& AimPersistance = m_FuzzyModule.CreateFLV("VisibleTime");
+    FzSet& StayLong = AimPersistance.AddRightShoulderSet("StayLong", 0.5, 1.5, 2.5);
+    FzSet& StayMedium = AimPersistance.AddTriangularSet("StayMedium", 0.25, 0.5, 1.5);
+    FzSet& StayLow = AimPersistance.AddLeftShoulderSet("StayLow", 0, 0.25, 0.5);
+
+    //StayLong
+    m_FuzzyModule.AddRule(FzAND(Target_Close, StayLong), No_Deviate);
+    m_FuzzyModule.AddRule(FzAND(Target_Close, StayMedium), No_Deviate);
+    m_FuzzyModule.AddRule(FzAND(Target_Close, StayLow), Deviate_Small);
+
+    m_FuzzyModule.AddRule(FzAND(Target_Medium, StayLong), No_Deviate);
+    m_FuzzyModule.AddRule(FzAND(Target_Medium, StayMedium), Deviate_Small);
+    m_FuzzyModule.AddRule(FzAND(Target_Medium, StayLow), Deviate_Small);
+
+    m_FuzzyModule.AddRule(FzAND(Target_Far, StayLong), Deviate_Small);
+    m_FuzzyModule.AddRule(FzAND(Target_Far, StayMedium), Deviate_Much);
+    m_FuzzyModule.AddRule(FzAND(Target_Far, StayLow), Deviate_Much);
 }

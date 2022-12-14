@@ -274,6 +274,15 @@
     <ClCompile Include="goals\HideGoal_Evaluator.cpp">
       <Filter>AI\goals\goal evaluation</Filter>
     </ClCompile>
+    <ClCompile Include="CData.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="CNeuralNet.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="LearningBot.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Raven_Bot.h">
@@ -618,6 +627,9 @@
     <ClInclude Include="goals\HideGoal_Evaluator.h">
       <Filter>AI\goals\goal evaluation</Filter>
     </ClInclude>
+    <ClInclude Include="LearningBot.h" />
+    <ClInclude Include="CNeuralNet.h" />
+    <ClInclude Include="CData.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Params.lua">
