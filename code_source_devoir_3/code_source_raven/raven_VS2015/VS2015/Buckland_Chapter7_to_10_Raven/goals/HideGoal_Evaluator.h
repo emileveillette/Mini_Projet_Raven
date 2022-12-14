@@ -10,7 +10,7 @@
 //  Desc:  class to calculate how desirable the goal of hide is
 //-----------------------------------------------------------------------------
 
-#include "../Buckland_Chapter7 to 10_Raven/goals/Goal_Evaluator.h"
+#include "Goal_Evaluator.h"
 #include "../Raven_Bot.h"
 
 
