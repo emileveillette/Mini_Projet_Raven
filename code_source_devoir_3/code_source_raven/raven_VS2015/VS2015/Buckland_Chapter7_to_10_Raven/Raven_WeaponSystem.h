@@ -16,6 +16,8 @@
 #include "fuzzy/FuzzyOperators.h"
 #include "Fuzzy/FuzzyModule.h"
 
+#include"armory/Raven_Weapon.h"
+
 class Raven_Bot;
 class Raven_Weapon;
 
