@@ -360,9 +360,9 @@ void Raven_WeaponSystem::InitializeFuzzyModule()
     FzSet& No_Deviate = Deviation.AddLeftShoulderSet("No_Deviate", 0, 0, 0);
 
     FuzzyVariable& AimPersistance = m_FuzzyModule.CreateFLV("VisibleTime");
-    FzSet& StayLong = AimPersistance.AddRightShoulderSet("StayLong", 0.5, 1.5, 2.5);
-    FzSet& StayMedium = AimPersistance.AddTriangularSet("StayMedium", 0.25, 0.5, 1.5);
-    FzSet& StayLow = AimPersistance.AddLeftShoulderSet("StayLow", 0, 0.25, 0.5);
+    FzSet& StayLong = AimPersistance.AddRightShoulderSet("StayLong", 25, 32.5, 50);
+    FzSet& StayMedium = AimPersistance.AddTriangularSet("StayMedium", 12.5, 18, 25);
+    FzSet& StayLow = AimPersistance.AddLeftShoulderSet("StayLow", 0, 6, 12.5);
 
     //StayLong
     m_FuzzyModule.AddRule(FzAND(Target_Close, StayLong), No_Deviate);
