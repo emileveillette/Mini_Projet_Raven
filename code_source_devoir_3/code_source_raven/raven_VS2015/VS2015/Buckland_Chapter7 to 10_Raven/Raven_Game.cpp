@@ -16,6 +16,7 @@
 #include "messaging/MessageDispatcher.h"
 #include "Raven_Messages.h"
 #include "GraveMarkers.h"
+#include "TeamZone.h"
 
 #include "armory/Raven_Projectile.h"
 #include "armory/Projectile_Rocket.h"
@@ -165,6 +166,33 @@ void Raven_Game::Update()
     {
       //create a grave
       m_pGraveMarkers->AddGrave((*curBot)->Pos());
+
+      if ((*curBot)->IsFromPlayerTeam())
+      {
+          //loot bot
+          Raven_WeaponSystem* curBotWeapSys = (*curBot)->GetWeaponSys();
+
+          //int weapons[3] = { type_rail_gun, type_rocket_launcher, type_shotgun };
+
+          //for (int k = 0; k++; k < 3) {
+          //    if (curBotWeapSys->GetWeaponFromInventory(weapons[k]))
+          //    {
+          //        m_pMap->ActivateWeaponTrigger(0, weapons[k]);
+          //    }
+          //}
+          if (curBotWeapSys->GetWeaponFromInventory(type_rail_gun))
+          {
+              m_pMap->ActivateWeaponTrigger(0, type_rail_gun);
+          }
+          if (curBotWeapSys->GetWeaponFromInventory(type_rocket_launcher))
+          {
+              m_pMap->ActivateWeaponTrigger(0, type_rocket_launcher);
+          }
+          if (curBotWeapSys->GetWeaponFromInventory(type_shotgun))
+          {
+              m_pMap->ActivateWeaponTrigger(0, type_shotgun);
+          }
+      }
 
       //change its status to spawning
       (*curBot)->SetSpawning();
@@ -407,7 +435,7 @@ bool Raven_Game::LoadMap(const std::string& filename)
 
 
   //load the new map data
-  if (m_pMap->LoadMap(filename))
+  if (m_pMap->LoadMap(filename, new TeamZone(Vector2D(330, 30), Vector2D(75, 30), 0)))
   { 
     AddBots(script->GetInt("NumBots"));
   
@@ -809,7 +837,7 @@ Raven_Game::GetPosOfClosestSwitch(Vector2D botPos, unsigned int doorID)const
 void Raven_Game::Render()
 {
   m_pGraveMarkers->Render();
-  
+
   //render the map
   m_pMap->Render();
 
