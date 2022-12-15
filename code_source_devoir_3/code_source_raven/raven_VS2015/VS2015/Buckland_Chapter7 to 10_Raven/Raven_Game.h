@@ -47,6 +47,8 @@ private:
   //a list of all the bots in the player team
   std::list<Raven_Bot*>            m_PlayerBots;
 
+  bool                             m_bHasPossessed;
+
   //the user may select a bot to control manually. This is a pointer to that
   //bot
   Raven_Bot*                       m_pSelectedBot;
@@ -110,6 +112,8 @@ public:
 
   //removes the last bot to be added
   void RemoveBot();
+
+  bool PlayerHasPossessedBot() { return m_pSelectedBot && m_pSelectedBot->isPossessed(); }
 
   //returns true if a bot of size BoundingRadius cannot move from A to B
   //without bumping into world geometry

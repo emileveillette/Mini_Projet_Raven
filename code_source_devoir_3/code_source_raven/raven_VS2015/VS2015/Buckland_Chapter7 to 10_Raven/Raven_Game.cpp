@@ -839,7 +839,7 @@ void Raven_Game::Render()
   m_pGraveMarkers->Render();
 
   //render the map
-  m_pMap->Render();
+  m_pMap->Render(PlayerHasPossessedBot());
 
   //render all the bots unless the user has selected the option to only 
   //render those bots that are in the fov of the selected bot

@@ -99,7 +99,7 @@ public:
   Raven_Map();
   ~Raven_Map();
 
-  void Render();
+  void Render(bool PlayerHasPossessedBot);
 
   //loads an environment from a file
   bool LoadMap(const std::string& FileName, TeamZone* teamZones);

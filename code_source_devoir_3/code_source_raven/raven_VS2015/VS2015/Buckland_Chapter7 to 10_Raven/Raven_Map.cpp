@@ -431,11 +431,11 @@ void Raven_Map::ActivateWeaponTrigger(int team, int type_of_weapon)
 
 //--------------------------- Render ------------------------------------------
 //-----------------------------------------------------------------------------
-void Raven_Map::Render()
+void Raven_Map::Render(bool PlayerHasPossessedBot)
 {
     if (m_pTeamZones)
     {
-        m_pTeamZones->Render();
+        m_pTeamZones->Render(PlayerHasPossessedBot);
     }
 
   //render the navgraph

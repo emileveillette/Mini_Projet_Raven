@@ -75,36 +75,15 @@ Creating a rocket_launcher
 maps/Raven_DM1.map loaded okay
 Player Possesses bot 404
 Player Possesses bot 404
-Player is exorcised from bot 404
-Player Possesses bot 405
-BOT 474 IS STUCK!!
-BOT 476 IS STUCK!!
-BOT 458 IS STUCK!!
-BOT 455 IS STUCK!!
-BOT 475 IS STUCK!!
-BOT 454 IS STUCK!!
-BOT 405 IS STUCK!!
-BOT 451 IS STUCK!!
-BOT 475 IS STUCK!!
-BOT 455 IS STUCK!!
 BOT 406 IS STUCK!!
-BOT 449 IS STUCK!!
-BOT 476 IS STUCK!!
-Player Possesses bot 405
-BOT 451 IS STUCK!!
-BOT 454 IS STUCK!!
-BOT 404 IS STUCK!!
+Player is exorcised from bot 404
+Player is exorcised from bot 405
+Player Possesses bot 404
+Player Possesses bot 404
+Player is exorcised from bot 404
+Player is exorcised from bot 405
+Player Possesses bot 404
+Player Possesses bot 404
 deleting raven bot (id = 404)
 deleting raven bot (id = 405)
 deleting raven bot (id = 406)
-deleting raven bot (id = 449)
-deleting raven bot (id = 450)
-deleting raven bot (id = 451)
-deleting raven bot (id = 454)
-deleting raven bot (id = 455)
-deleting raven bot (id = 458)
-deleting raven bot (id = 470)
-deleting raven bot (id = 471)
-deleting raven bot (id = 474)
-deleting raven bot (id = 475)
-deleting raven bot (id = 476)

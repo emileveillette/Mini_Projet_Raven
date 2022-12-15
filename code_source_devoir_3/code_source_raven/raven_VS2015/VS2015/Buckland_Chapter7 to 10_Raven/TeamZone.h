@@ -20,7 +20,7 @@ private:
 
 public:
 	TeamZone(Vector2D position, Vector2D size, int team);
-	void Render();
+	void Render(bool PlayerHasPossessedBot);
 	void Update();
 	bool IsInZone(Vector2D position);
 

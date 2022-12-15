@@ -11,10 +11,17 @@ m_spawnSize(7)
 	m_spawnShotGun = Vector2D(position.x + 2 * size.x / 3, position.y) + spawnOffset;
 }
 
-void TeamZone::Render()
+void TeamZone::Render(bool PlayerHasPossessedBot)
 {
 	gdi->YellowPen();
-	gdi->OrangeBrush();
+	if (PlayerHasPossessedBot)
+	{
+		gdi->OrangeBrush();
+	}
+	else
+	{
+		gdi->GreyBrush();
+	}
 	gdi->Rect(m_left, m_top, m_right, m_bottom);
 }
 
