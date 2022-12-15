@@ -114,6 +114,7 @@ void ShotGun::InitializeFuzzyModule()
   FzSet& Target_Medium = DistanceToTarget.AddTriangularSet("Target_Medium", 25, 150, 300);
   FzSet& Target_Far = DistanceToTarget.AddRightShoulderSet("Target_Far", 150, 300, 1000);
 
+
   FuzzyVariable& Desirability = m_FuzzyModule.CreateFLV("Desirability");
   
   FzSet& VeryDesirable = Desirability.AddRightShoulderSet("VeryDesirable", 50, 75, 100);

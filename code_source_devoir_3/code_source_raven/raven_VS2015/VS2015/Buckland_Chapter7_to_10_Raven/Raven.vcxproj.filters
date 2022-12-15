@@ -273,6 +273,20 @@
     </ClCompile>
     <ClCompile Include="triggers\Trigger_ManualWeaponGiver.cpp">
       <Filter>AI\Triggers</Filter>
+    <ClCompile Include="goals\Goal_Hide.cpp">
+      <Filter>AI\goals\composite</Filter>
+    </ClCompile>
+    <ClCompile Include="goals\HideGoal_Evaluator.cpp">
+      <Filter>AI\goals\goal evaluation</Filter>
+    </ClCompile>
+    <ClCompile Include="CData.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="CNeuralNet.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="LearningBot.cpp">
+      <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -618,6 +632,15 @@
     <ClInclude Include="triggers\Trigger_ManualWeaponGiver.h">
       <Filter>AI\Triggers</Filter>
     </ClInclude>
+    <ClInclude Include="goals\Goal_Hide.h">
+      <Filter>AI\goals\composite</Filter>
+    </ClInclude>
+    <ClInclude Include="goals\HideGoal_Evaluator.h">
+      <Filter>AI\goals\goal evaluation</Filter>
+    </ClInclude>
+    <ClInclude Include="LearningBot.h" />
+    <ClInclude Include="CNeuralNet.h" />
+    <ClInclude Include="CData.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Params.lua">

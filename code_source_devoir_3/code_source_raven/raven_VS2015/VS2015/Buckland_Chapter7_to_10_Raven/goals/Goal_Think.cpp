@@ -11,15 +11,17 @@
 #include "Goal_Wander.h"
 #include "Raven_Goal_Types.h"
 #include "Goal_AttackTarget.h"
+#include "Goal_Hide.h"
 
 
 #include "GetWeaponGoal_Evaluator.h"
 #include "GetHealthGoal_Evaluator.h"
 #include "ExploreGoal_Evaluator.h"
 #include "AttackTargetGoal_Evaluator.h"
+#include "HideGoal_Evaluator.h"
 
 
-Goal_Think::Goal_Think(Raven_Bot* pBot):Goal_Composite<Raven_Bot>(pBot, goal_think)
+Goal_Think::Goal_Think(Raven_Bot* pBot) :Goal_Composite<Raven_Bot>(pBot, goal_think)
 {
   
   //these biases could be loaded in from a script on a per bot basis
@@ -33,11 +35,13 @@ Goal_Think::Goal_Think(Raven_Bot* pBot):Goal_Composite<Raven_Bot>(pBot, goal_thi
   double RailgunBias = RandInRange(LowRangeOfBias, HighRangeOfBias);
   double ExploreBias = RandInRange(LowRangeOfBias, HighRangeOfBias);
   double AttackBias = RandInRange(LowRangeOfBias, HighRangeOfBias);
+    double HideBias = RandInRange(LowRangeOfBias, HighRangeOfBias);
 
   //create the evaluator objects
   m_Evaluators.push_back(new GetHealthGoal_Evaluator(HealthBias));
   m_Evaluators.push_back(new ExploreGoal_Evaluator(ExploreBias));
   m_Evaluators.push_back(new AttackTargetGoal_Evaluator(AttackBias));
+    m_Evaluators.push_back(new HideGoal_Evaluator(HideBias));
   m_Evaluators.push_back(new GetWeaponGoal_Evaluator(ShotgunBias,
                                                      type_shotgun));
   m_Evaluators.push_back(new GetWeaponGoal_Evaluator(RailgunBias,
@@ -53,7 +57,7 @@ Goal_Think::~Goal_Think()
   GoalEvaluators::iterator curDes = m_Evaluators.begin();
   for (curDes; curDes != m_Evaluators.end(); ++curDes)
   {
-    delete *curDes;
+        delete* curDes;
   }
 }
 
@@ -136,7 +140,7 @@ bool Goal_Think::notPresent(unsigned int GoalType)const
 
 void Goal_Think::AddGoal_MoveToPosition(Vector2D pos)
 {
-  AddSubgoal( new Goal_MoveToPosition(m_pOwner, pos));
+    AddSubgoal(new Goal_MoveToPosition(m_pOwner, pos));
 }
 
 void Goal_Think::AddGoal_Explore()
@@ -144,7 +148,7 @@ void Goal_Think::AddGoal_Explore()
   if (notPresent(goal_explore))
   {
     RemoveAllSubgoals();
-    AddSubgoal( new Goal_Explore(m_pOwner));
+        AddSubgoal(new Goal_Explore(m_pOwner));
   }
 }
 
@@ -153,7 +157,7 @@ void Goal_Think::AddGoal_GetItem(unsigned int ItemType)
   if (notPresent(ItemTypeToGoalType(ItemType)))
   {
     RemoveAllSubgoals();
-    AddSubgoal( new Goal_GetItem(m_pOwner, ItemType));
+        AddSubgoal(new Goal_GetItem(m_pOwner, ItemType));
   }
 }
 
@@ -162,7 +166,16 @@ void Goal_Think::AddGoal_AttackTarget()
   if (notPresent(goal_attack_target))
   {
     RemoveAllSubgoals();
-    AddSubgoal( new Goal_AttackTarget(m_pOwner));
+        AddSubgoal(new Goal_AttackTarget(m_pOwner));
+    }
+}
+
+void Goal_Think::AddGoal_Hide()
+{
+    if (notPresent(goal_Hide))
+    {
+        RemoveAllSubgoals();
+        AddSubgoal(new Goal_Hide(m_pOwner));
   }
 }
 
@@ -193,7 +206,7 @@ void Goal_Think::RenderEvaluations(int left, int top)const
 void Goal_Think::Render()
 {
   std::list<Goal<Raven_Bot>*>::iterator curG;
-  for (curG=m_SubGoals.begin(); curG != m_SubGoals.end(); ++curG)
+    for (curG = m_SubGoals.begin(); curG != m_SubGoals.end(); ++curG)
   {
     (*curG)->Render();
   }

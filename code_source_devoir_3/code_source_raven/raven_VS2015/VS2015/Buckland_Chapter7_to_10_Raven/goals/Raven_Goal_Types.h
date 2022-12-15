@@ -23,14 +23,15 @@ enum
   goal_hunt_target,
   goal_strafe,
   goal_adjust_range,
-  goal_say_phrase
+	goal_say_phrase,
+	goal_Hide
   
 };
 
 class GoalTypeToString : public TypeToString
 {
 
-  GoalTypeToString(){}
+	GoalTypeToString() {}
 
 public:
 
