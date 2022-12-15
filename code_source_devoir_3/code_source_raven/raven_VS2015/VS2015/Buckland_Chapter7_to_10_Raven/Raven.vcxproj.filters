@@ -268,6 +268,11 @@
     <ClCompile Include="..\Common\misc\WindowUtils.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="TeamZone.cpp">
+      <Filter>Game\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="triggers\Trigger_ManualWeaponGiver.cpp">
+      <Filter>AI\Triggers</Filter>
     <ClCompile Include="goals\Goal_Hide.cpp">
       <Filter>AI\goals\composite</Filter>
     </ClCompile>
@@ -621,6 +626,12 @@
     <ClInclude Include="..\Common\misc\WindowUtils.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="TeamZone.h">
+      <Filter>Game\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="triggers\Trigger_ManualWeaponGiver.h">
+      <Filter>AI\Triggers</Filter>
+    </ClInclude>
     <ClInclude Include="goals\Goal_Hide.h">
       <Filter>AI\goals\composite</Filter>
     </ClInclude>
@@ -641,7 +652,10 @@
     <None Include="maps\Raven_DM1.map">
       <Filter>Resource Files\maps</Filter>
     </None>
-    <None Include="maps\Raven_DM1_Doors.map">
+    <None Include="Params.ini">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="maps\Raven_DM1_With_Doors.map">
       <Filter>Resource Files\maps</Filter>
     </None>
   </ItemGroup>

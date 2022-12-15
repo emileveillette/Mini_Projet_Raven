@@ -7,7 +7,8 @@
 //-------------------------------- ctor ---------------------------------------
 //-----------------------------------------------------------------------------
 Raven_TargetingSystem::Raven_TargetingSystem(Raven_Bot* owner):m_pOwner(owner),
-                                                               m_pCurrentTarget(0)
+                                                               m_pCurrentTarget(0),
+                                                               m_pOrderedTarget(nullptr)
 {}
 
 
@@ -20,6 +21,17 @@ void Raven_TargetingSystem::Update()
   double ClosestDistSoFar = MaxDouble;
   m_pCurrentTarget       = 0;
 
+  // if there is an ordered target and this ordered target is alive, and it is not the owner, and it is not from the player team.
+  if (m_pOrderedTarget && m_pOrderedTarget->isAlive() && m_pOrderedTarget != m_pOwner && !m_pOrderedTarget->IsFromPlayerTeam())
+  {
+      m_pCurrentTarget = m_pOrderedTarget;
+      return;
+  }
+  else
+  {
+      m_pOrderedTarget = nullptr;
+  }
+
   //grab a list of all the opponents the owner can sense
   std::list<Raven_Bot*> SensedBots;
   SensedBots = m_pOwner->GetSensoryMem()->GetListOfRecentlySensedOpponents();
@@ -27,8 +39,9 @@ void Raven_TargetingSystem::Update()
   std::list<Raven_Bot*>::const_iterator curBot = SensedBots.begin();
   for (curBot; curBot != SensedBots.end(); ++curBot)
   {
-    //make sure the bot is alive and that it is not the owner
-    if ((*curBot)->isAlive() && (*curBot != m_pOwner) )
+    //make sure the bot is alive and that it is not the owner or a member of its team
+    bool bInTheSameTeam = m_pOwner->IsFromPlayerTeam() && (*curBot)->IsFromPlayerTeam();
+    if ((*curBot)->isAlive() && (*curBot != m_pOwner) && !bInTheSameTeam)
     {
       double dist = Vec2DDistanceSq((*curBot)->Pos(), m_pOwner->Pos());
 
@@ -66,5 +79,6 @@ double Raven_TargetingSystem::GetTimeTargetHasBeenVisible()const
 
 double Raven_TargetingSystem::GetTimeTargetHasBeenOutOfView()const
 {
+    this;
   return m_pOwner->GetSensoryMem()->GetTimeOpponentHasBeenOutOfView(m_pCurrentTarget);
 }

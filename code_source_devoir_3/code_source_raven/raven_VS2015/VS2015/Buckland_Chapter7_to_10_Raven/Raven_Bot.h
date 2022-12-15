@@ -105,6 +105,12 @@ public:
   //set to true when a human player takes over control of the bot
   bool                               m_bPossessed;
 
+  //set to true when is in the team of the player.
+  bool								 m_bInPlayerTeam;
+
+  //set to true when is targeted by the team of the player
+  bool								 m_bTargeted;
+
   //a vertex buffer containing the bot's geometry
   std::vector<Vector2D>              m_vecBotVB;
   //the buffer for the transformed vertices
@@ -162,6 +168,7 @@ public:
   bool          isDead()const{return m_Status == dead;}
   bool          isAlive()const{return m_Status == alive;}
   bool          isSpawning()const{return m_Status == spawning;}
+  bool			IsFromPlayerTeam() { return m_bInPlayerTeam; };
   
   void          SetSpawning(){m_Status = spawning;}
   void          SetDead(){m_Status = dead;}
@@ -180,6 +187,9 @@ public:
   void          ChangeWeapon(unsigned int type);
   void          TakePossession();
   void          Exorcise();
+
+  //set the bot in the player team
+  void			SetInPlayerTeam(Raven_Bot* currentTarget);
 
   //spawns the bot at the given position
   void          Spawn(Vector2D pos);

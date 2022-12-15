@@ -67,5 +67,3 @@ int Goal_NegotiateDoor::Process()
 }
 
 
-
-

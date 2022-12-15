@@ -90,7 +90,7 @@ double Raven_PathPlanner::GetCostToClosestItem(unsigned int GiverType)const
   Raven_Map::TriggerSystem::TriggerList::const_iterator it;
   for (it = triggers.begin(); it != triggers.end(); ++it)
   {
-    if ( ((*it)->EntityType() == GiverType) && (*it)->isActive())
+    if ( ((*it)->EntityType() == GiverType) && (*it)->isActive() && (*it)->GraphNodeIndex() != -1)
     {
       double cost = 
       m_pOwner->GetWorld()->GetMap()->CalculateCostToTravelBetweenNodes(nd,

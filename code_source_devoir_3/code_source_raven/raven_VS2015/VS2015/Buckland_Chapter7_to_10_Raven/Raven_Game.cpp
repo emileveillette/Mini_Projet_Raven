@@ -16,6 +16,7 @@
 #include "messaging/MessageDispatcher.h"
 #include "Raven_Messages.h"
 #include "GraveMarkers.h"
+#include "TeamZone.h"
 
 #include "armory/Raven_Projectile.h"
 #include "armory/Projectile_Rocket.h"
@@ -40,6 +41,7 @@
 //----------------------------- ctor ------------------------------------------
 //-----------------------------------------------------------------------------
 Raven_Game::Raven_Game():m_pSelectedBot(NULL),
+                         m_pTargetedBot(NULL),
                          m_bPaused(false),
                          m_bRemoveABot(false),
                          m_pMap(NULL),
@@ -119,8 +121,10 @@ void Raven_Game::Clear()
   //clear the containers
   m_Projectiles.clear();
   m_Bots.clear();
+  m_PlayerBots.clear();
 
   m_pSelectedBot = NULL;
+  m_pTargetedBot = NULL;
 
 
 }
@@ -188,6 +192,33 @@ void Raven_Game::Update()
       //create a grave
       m_pGraveMarkers->AddGrave((*curBot)->Pos());
 
+      if ((*curBot)->IsFromPlayerTeam())
+      {
+          //loot bot
+          Raven_WeaponSystem* curBotWeapSys = (*curBot)->GetWeaponSys();
+
+          //int weapons[3] = { type_rail_gun, type_rocket_launcher, type_shotgun };
+
+          //for (int k = 0; k++; k < 3) {
+          //    if (curBotWeapSys->GetWeaponFromInventory(weapons[k]))
+          //    {
+          //        m_pMap->ActivateWeaponTrigger(0, weapons[k]);
+          //    }
+          //}
+          if (curBotWeapSys->GetWeaponFromInventory(type_rail_gun))
+          {
+              m_pMap->ActivateWeaponTrigger(0, type_rail_gun);
+          }
+          if (curBotWeapSys->GetWeaponFromInventory(type_rocket_launcher))
+          {
+              m_pMap->ActivateWeaponTrigger(0, type_rocket_launcher);
+          }
+          if (curBotWeapSys->GetWeaponFromInventory(type_shotgun))
+          {
+              m_pMap->ActivateWeaponTrigger(0, type_shotgun);
+          }
+      }
+
       //change its status to spawning
       (*curBot)->SetSpawning();
 
@@ -225,9 +256,11 @@ void Raven_Game::Update()
     {
       Raven_Bot* pBot = m_Bots.back();
       if (pBot == m_pSelectedBot)m_pSelectedBot=0;
+      if (pBot == m_pTargetedBot)m_pTargetedBot = 0;
       NotifyAllBotsOfRemoval(pBot);
       delete m_Bots.back();
       m_Bots.remove(pBot);
+      m_PlayerBots.remove(pBot);
       pBot = 0;
     }
 
@@ -321,6 +354,14 @@ void Raven_Game::AddBots(unsigned int NumBotsToAdd, bool isLearningBot)
     rb->GetSteering()->SeparationOn();
 
     m_Bots.push_back(rb);
+    if (m_Bots.size() % 2 != 0)
+    {
+        m_PlayerBots.push_back(rb);
+        if (m_pSelectedBot)
+        {
+            rb->SetInPlayerTeam(m_pTargetedBot);
+        }
+    }
 
     //register the bot with the entity manager
     EntityMgr->RegisterEntity(rb);
@@ -478,7 +519,7 @@ bool Raven_Game::LoadMap(const std::string& filename)
 
 
   //load the new map data
-  if (m_pMap->LoadMap(filename))
+  if (m_pMap->LoadMap(filename, new TeamZone(Vector2D(330, 30), Vector2D(75, 30), 0)))
   { 
     AddBots(script->GetInt("NumBots"),false);
   
@@ -488,6 +529,52 @@ bool Raven_Game::LoadMap(const std::string& filename)
   return false;
 }
 
+void Raven_Game::NotifyTeam(Raven_Bot* pPossessedBot, int msg) const
+{
+    std::list<Raven_Bot*>::const_iterator curBot = m_PlayerBots.begin();
+    for (curBot; curBot != m_PlayerBots.end(); ++curBot)
+    {
+        Dispatcher->DispatchMsg(SEND_MSG_IMMEDIATELY,
+            pPossessedBot->ID(),
+            (*curBot)->ID(),
+            msg,
+            pPossessedBot);
+
+    }
+}
+
+void Raven_Game::OrderTeamToAim(Raven_Bot* pPossessedBot, Raven_Bot* pAimedBot)
+{
+    std::list<Raven_Bot*>::const_iterator curBot = m_PlayerBots.begin();
+    for (curBot; curBot != m_PlayerBots.end(); ++curBot)
+    {
+        Dispatcher->DispatchMsg(SEND_MSG_IMMEDIATELY,
+            pPossessedBot->ID(),
+            (*curBot)->ID(),
+            Msg_OrderToAim,
+            pAimedBot);
+
+    }
+
+    if (m_pTargetedBot && m_pTargetedBot->ID() != pAimedBot->ID())
+    {
+        Dispatcher->DispatchMsg(SEND_MSG_IMMEDIATELY,
+            pPossessedBot->ID(),
+            m_pTargetedBot->ID(),
+            Msg_Untargeted,
+            NO_ADDITIONAL_INFO);
+    }
+    
+    if (!m_pTargetedBot || m_pTargetedBot->ID() != pAimedBot->ID())
+    {
+        m_pTargetedBot = pAimedBot;
+        Dispatcher->DispatchMsg(SEND_MSG_IMMEDIATELY,
+            pPossessedBot->ID(),
+            pAimedBot->ID(),
+            Msg_Targeted,
+            NO_ADDITIONAL_INFO);
+    }
+}
 
 //------------------------- ExorciseAnyPossessedBot ---------------------------
 //
@@ -495,7 +582,20 @@ bool Raven_Game::LoadMap(const std::string& filename)
 //-----------------------------------------------------------------------------
 void Raven_Game::ExorciseAnyPossessedBot()
 {
-  if (m_pSelectedBot) m_pSelectedBot->Exorcise();
+    if (m_pSelectedBot)
+    {
+        m_pSelectedBot->Exorcise();
+        NotifyTeam(m_pSelectedBot, Msg_NotifyTeamOfExorcise);
+        if (m_pTargetedBot)
+        {
+            Dispatcher->DispatchMsg(SEND_MSG_IMMEDIATELY,
+                m_pSelectedBot->ID(),
+                m_pTargetedBot->ID(),
+                Msg_Untargeted,
+                NO_ADDITIONAL_INFO);
+            m_pTargetedBot = nullptr;
+        }
+    }
 }
 
 
@@ -520,9 +620,43 @@ void Raven_Game::ClickRightMouseButton(POINTS p)
   //change selection
   if (pBot && pBot != m_pSelectedBot)
   { 
-    if (m_pSelectedBot) m_pSelectedBot->Exorcise();
-    m_pSelectedBot = pBot;
-
+    // if the w key is pressed down at the same time as clicking the
+    // team of the player is notified that they have to attack the aimed bot
+    if (IS_KEY_PRESSED('W'))
+    {
+        if (pBot && !pBot->IsFromPlayerTeam()) { OrderTeamToAim(m_pSelectedBot, pBot); }
+        // if the aimed bot is from the team, cancel the previous targetting.
+        else { 
+            NotifyTeam(m_pSelectedBot, Msg_ClearAimOrder);
+            if (m_pTargetedBot)
+            {
+                Dispatcher->DispatchMsg(SEND_MSG_IMMEDIATELY,
+                    m_pSelectedBot->ID(),
+                    m_pTargetedBot->ID(),
+                    Msg_Untargeted,
+                    NO_ADDITIONAL_INFO);
+                m_pTargetedBot = nullptr;
+            }
+        }
+    }
+    else
+    {
+        if (m_pSelectedBot)
+        {
+            m_pSelectedBot->Exorcise();
+            NotifyTeam(m_pSelectedBot, Msg_NotifyTeamOfExorcise);
+            if (m_pTargetedBot)
+            {
+                Dispatcher->DispatchMsg(SEND_MSG_IMMEDIATELY,
+                    m_pSelectedBot->ID(),
+                    m_pTargetedBot->ID(),
+                    Msg_Untargeted,
+                    NO_ADDITIONAL_INFO);
+                m_pTargetedBot = nullptr;
+            }
+        }
+        m_pSelectedBot = pBot;
+    }
     return;
   }
 
@@ -532,6 +666,8 @@ void Raven_Game::ClickRightMouseButton(POINTS p)
   {
     m_pSelectedBot->TakePossession();
 
+    NotifyTeam(m_pSelectedBot, Msg_NotifyTeamOfPossess);
+
     //clear any current goals
     m_pSelectedBot->GetBrain()->RemoveAllSubgoals();
   }
@@ -540,11 +676,25 @@ void Raven_Game::ClickRightMouseButton(POINTS p)
   //position
   if (m_pSelectedBot->isPossessed())
   {
-    //if the shift key is pressed down at the same time as clicking then the
+    //if the q key is pressed down at the same time as clicking then the
     //movement command will be queued
     if (IS_KEY_PRESSED('Q'))
     {
       m_pSelectedBot->GetBrain()->QueueGoal_MoveToPosition(POINTStoVector(p));
+    }
+    // if the w key is pressed down then the targetting is cancelled
+    else if (IS_KEY_PRESSED('W'))
+    {
+        NotifyTeam(m_pSelectedBot, Msg_ClearAimOrder);
+        if (m_pTargetedBot)
+        {
+            Dispatcher->DispatchMsg(SEND_MSG_IMMEDIATELY,
+                m_pSelectedBot->ID(),
+                m_pTargetedBot->ID(),
+                Msg_Untargeted,
+                NO_ADDITIONAL_INFO);
+            m_pTargetedBot = nullptr;
+        }
     }
     else
     {
@@ -771,9 +921,9 @@ Raven_Game::GetPosOfClosestSwitch(Vector2D botPos, unsigned int doorID)const
 void Raven_Game::Render()
 {
   m_pGraveMarkers->Render();
-  
+
   //render the map
-  m_pMap->Render();
+  m_pMap->Render(PlayerHasPossessedBot());
 
   //render all the bots unless the user has selected the option to only 
   //render those bots that are in the fov of the selected bot

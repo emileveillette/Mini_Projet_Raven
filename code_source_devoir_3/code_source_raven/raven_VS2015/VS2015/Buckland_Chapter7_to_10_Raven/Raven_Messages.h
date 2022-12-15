@@ -20,7 +20,13 @@ enum message_type
   Msg_GoalQueueEmpty,
   Msg_OpenSesame,
   Msg_GunshotSound,
-  Msg_UserHasRemovedBot
+  Msg_UserHasRemovedBot,
+  Msg_Targeted,
+  Msg_Untargeted,
+  Msg_NotifyTeamOfPossess,
+  Msg_NotifyTeamOfExorcise,
+  Msg_OrderToAim,
+  Msg_ClearAimOrder
 };
 
 //used for outputting debug info
@@ -59,6 +65,24 @@ inline std::string MessageToString(int msg)
   case Msg_UserHasRemovedBot:
 
     return "Msg_UserHasRemovedBot";
+
+  case Msg_NotifyTeamOfPossess:
+      return "Msg_NotifyTeamOfPossess";
+
+  case Msg_NotifyTeamOfExorcise:
+      return "Msg_NotifyTeamOfExorcise";
+
+  case Msg_Targeted:
+      return "Msg_Targeted";
+
+  case Msg_Untargeted:
+      return "Msg_Untargeted";
+
+  case Msg_OrderToAim:
+      return "Msg_OrderToAim";
+
+  case Msg_ClearAimOrder:
+      return "Msg_ClearAimOrder";
 
   default:
 

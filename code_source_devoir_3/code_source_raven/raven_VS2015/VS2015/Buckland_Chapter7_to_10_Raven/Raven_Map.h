@@ -27,6 +27,8 @@
 
 class BaseGameEntity;
 class Raven_Door;
+class TeamZone;
+class Trigger_ManualWeaponGiver;
 
 
 class Raven_Map
@@ -56,12 +58,16 @@ private:
 
   //a map may contain a number of sliding doors.
   std::vector<Raven_Door*>           m_Doors;
+
+  std::map<int, Trigger_ManualWeaponGiver*> m_PlayerManualWeaponTriggers;
  
   //this map's accompanying navigation graph
   NavGraph*                          m_pNavGraph;  
 
   //the graph nodes will be partitioned enabling fast lookup
   CellSpace*                        m_pSpacePartition;
+
+  TeamZone*                             m_pTeamZones;
 
   //the size of the search radius the cellspace partition uses when looking for 
   //neighbors 
@@ -82,6 +88,7 @@ private:
   void AddSpawnPoint(std::ifstream& in);
   void AddHealth_Giver(std::ifstream& in);
   void AddWeapon_Giver(int type_of_weapon, std::ifstream& in);
+  void AddManual_Weapon_Giver(int team, int type_of_weapon, int id, double x, double y, double r);
   void AddDoor(std::ifstream& in);
   void AddDoorTrigger(std::ifstream& in);
 
@@ -89,19 +96,21 @@ private:
   
 public:
   
-  Raven_Map();  
+  Raven_Map();
   ~Raven_Map();
 
-  void Render();
+  void Render(bool PlayerHasPossessedBot);
 
   //loads an environment from a file
-  bool LoadMap(const std::string& FileName); 
+  bool LoadMap(const std::string& FileName, TeamZone* teamZones);
 
   //adds a wall and returns a pointer to that wall. (this method can be
   //used by objects such as doors to add walls to the environment)
   Wall2D* AddWall(Vector2D from, Vector2D to);
 
   void    AddSoundTrigger(Raven_Bot* pSoundSource, double range);
+
+  void ActivateWeaponTrigger(int team, int type_of_weapon);
 
   double   CalculateCostToTravelBetweenNodes(int nd1, int nd2)const;
 

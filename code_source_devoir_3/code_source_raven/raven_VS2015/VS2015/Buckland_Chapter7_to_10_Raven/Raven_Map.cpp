@@ -9,6 +9,7 @@
 
 #include "triggers/Trigger_HealthGiver.h"
 #include "triggers/Trigger_WeaponGiver.h"
+#include "triggers/Trigger_ManualWeaponGiver.h"
 #include "triggers/Trigger_OnButtonSendMsg.h"
 #include "triggers/Trigger_SoundNotify.h"
 
@@ -17,6 +18,7 @@
 
 //uncomment to write object creation/deletion to debug console
 #define  LOG_CREATIONAL_STUFF
+#include "TeamZone.h"
 #include "debug/DebugConsole.h"
 
 
@@ -26,7 +28,8 @@ Raven_Map::Raven_Map():m_pNavGraph(NULL),
                        m_pSpacePartition(NULL),
                        m_iSizeY(0),
                        m_iSizeX(0),
-                       m_dCellSpaceNeighborhoodRange(0)
+                       m_dCellSpaceNeighborhoodRange(0),
+                       m_pTeamZones(NULL)
 {
 }
 //------------------------------ dtor -----------------------------------------
@@ -45,6 +48,11 @@ void Raven_Map::Clear()
 {
   //delete the triggers
   m_TriggerSystem.Clear();
+
+  if (m_pTeamZones)
+  {
+      delete m_pTeamZones;
+  }
 
   //delete the doors
   std::vector<Raven_Door*>::iterator curDoor = m_Doors.begin();
@@ -164,11 +172,35 @@ void Raven_Map::AddWeapon_Giver(int type_of_weapon, std::ifstream& in)
 }
 
 
+//----------------------- AddManual_Weapon__Giver ----------------------------------
+//-----------------------------------------------------------------------------
+void Raven_Map::AddManual_Weapon_Giver(int team, int type_of_weapon, int id, double x, double y, double r)
+{
+    Trigger_ManualWeaponGiver* wg = new Trigger_ManualWeaponGiver(id, x, y, r);
+
+    wg->SetEntityType(type_of_weapon);
+
+    //add it to the appropriate vectors
+    m_TriggerSystem.Register(wg);
+
+    ////let the corresponding navgraph node point to this object
+    //NavGraph::NodeType& node = m_pNavGraph->GetNode(wg->GraphNodeIndex());
+    //node.SetExtraInfo(wg);
+
+    //register the entity 
+    EntityMgr->RegisterEntity(wg);
+
+    if (team == 0)
+    {
+        m_PlayerManualWeaponTriggers.insert({ type_of_weapon, wg });
+    }
+}
+
 //------------------------- LoadMap ------------------------------------
 //
 //  sets up the game environment from map file
 //-----------------------------------------------------------------------------
-bool Raven_Map::LoadMap(const std::string& filename)
+bool Raven_Map::LoadMap(const std::string& filename, TeamZone* teamZones)
 {  
   std::ifstream in(filename.c_str());
   if (!in)
@@ -289,6 +321,19 @@ bool Raven_Map::LoadMap(const std::string& filename)
 #ifdef LOG_CREATIONAL_STUFF
     debug_con << filename << " loaded okay" << "";
 #endif
+  
+    if (teamZones)
+    {
+        m_pTeamZones = teamZones;
+        int spawnSize = m_pTeamZones->GetSpawnSize();
+        Vector2D spawnRailGun = m_pTeamZones->GetSpawnRailGun();
+        Vector2D spawnRocketLauncher = m_pTeamZones->GetSpawnRocketLauncher();
+        Vector2D soawnShotGun = m_pTeamZones->GetSpawnShotGun();
+
+        AddManual_Weapon_Giver(0, type_rail_gun, BaseGameEntity::GetNextValidID(), spawnRailGun.x, spawnRailGun.y, spawnSize);
+        AddManual_Weapon_Giver(0, type_rocket_launcher, BaseGameEntity::GetNextValidID(), spawnRocketLauncher.x, spawnRocketLauncher.y, spawnSize);
+        AddManual_Weapon_Giver(0, type_shotgun, BaseGameEntity::GetNextValidID(), soawnShotGun.x, soawnShotGun.y, spawnSize);
+    }
 
    //calculate the cost lookup table
   m_PathCosts = CreateAllPairsCostsTable(*m_pNavGraph);
@@ -374,11 +419,25 @@ Vector2D Raven_Map::GetRandomNodeLocation()const
   return pN->Pos();
 }
 
+void Raven_Map::ActivateWeaponTrigger(int team, int type_of_weapon)
+{
+    if (team == 0)
+    {
+        Trigger_ManualWeaponGiver* teamZone = m_PlayerManualWeaponTriggers.find(type_of_weapon)->second;
+        teamZone->Activate();
+    }
+}
+
 
 //--------------------------- Render ------------------------------------------
 //-----------------------------------------------------------------------------
-void Raven_Map::Render()
+void Raven_Map::Render(bool PlayerHasPossessedBot)
 {
+    if (m_pTeamZones)
+    {
+        m_pTeamZones->Render(PlayerHasPossessedBot);
+    }
+
   //render the navgraph
   if (UserOptions->m_bShowGraph)
   {
